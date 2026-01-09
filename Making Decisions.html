@@ -5,34 +5,36 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Competency Simulation</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,700;1,500&family=Work+Sans:wght@400;500;600&display=swap');
+
         :root {
-            /* NEW AESTHETIC: Airy, Clinical, Professional */
+            /* AESTHETIC: Modern Academic (Warm Paper & Indigo) */
             
             /* Backgrounds */
-            --bg-body: #F0F9FF;       /* Very Pale Blue */
+            --bg-body: #FAF9F6;       /* Off-White / Paper */
             --bg-card: #FFFFFF;
-            --bg-neutral: #F8FAFC;    /* Slate 50 */
+            --bg-neutral: #F3F4F6;    /* Cool Gray 100 */
+            --bg-accent-light: #EEF2FF; /* Indigo 50 */
             
             /* Text Colors */
-            --text-primary: #0F172A;  /* Slate 900 */
-            --text-secondary: #475569;/* Slate 600 */
-            --text-muted: #94A3B8;    /* Slate 400 */
+            --text-primary: #1E1B4B;  /* Indigo 950 */
+            --text-secondary: #4B5563;/* Gray 600 */
+            --text-muted: #9CA3AF;    /* Gray 400 */
             
             /* Accents */
-            --accent-color: #0EA5E9;  /* Sky 500 */
-            --accent-hover: #0284C7;  /* Sky 600 */
-            --accent-light: #E0F2FE;  /* Sky 100 */
-            
-            /* Status Indicators (Subtle borders) */
-            --border-default: #E2E8F0;
-            --border-focus: #0EA5E9;
+            --accent-color: #4F46E5;  /* Indigo 600 */
+            --accent-hover: #4338CA;  /* Indigo 700 */
+            --accent-border: #C7D2FE; /* Indigo 200 */
             
             /* Spacing & Structure */
-            --radius-card: 12px;      /* Moderately rounded */
-            --radius-btn: 6px;        /* Standard button */
-            --shadow-soft: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            --radius-card: 16px;
+            --radius-btn: 8px;
             
-            --font-main: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            --shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -4px rgba(0, 0, 0, 0.02);
+            
+            --font-heading: 'Lora', serif;
+            --font-body: 'Work Sans', sans-serif;
         }
 
         * {
@@ -40,7 +42,7 @@
         }
 
         body {
-            font-family: var(--font-main);
+            font-family: var(--font-body);
             background-color: var(--bg-body);
             color: var(--text-primary);
             display: flex;
@@ -55,17 +57,24 @@
         #app-container {
             background: var(--bg-card);
             width: 100%;
-            max-width: 650px;
+            max-width: 720px;
             border-radius: var(--radius-card);
-            box-shadow: var(--shadow-soft);
+            box-shadow: var(--shadow-card);
             overflow: hidden;
-            border: 1px solid var(--border-default);
+            border: 1px solid #E5E7EB;
             display: flex;
             flex-direction: column;
-            min-height: 500px;
+            min-height: 550px;
+            position: relative;
         }
 
-        /* Top Bar */
+        /* Progress Header */
+        .header-bar {
+            padding: 0;
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--bg-neutral);
+        }
+
         .status-bar {
             height: 4px;
             background: var(--bg-neutral);
@@ -76,12 +85,12 @@
             height: 100%;
             background: var(--accent-color);
             width: 0%;
-            transition: width 0.5s ease;
+            transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
         /* Content Area */
         .content-area {
-            padding: 40px;
+            padding: 40px 48px;
             flex-grow: 1;
             display: flex;
             flex-direction: column;
@@ -90,65 +99,119 @@
 
         /* Typography */
         h1 {
-            font-size: 1.25rem;
+            font-family: var(--font-heading);
+            font-size: 1.75rem;
             font-weight: 700;
             color: var(--text-primary);
             margin: 0 0 16px 0;
-            line-height: 1.4;
+            line-height: 1.3;
         }
 
         h2 {
+            font-family: var(--font-body);
             font-size: 0.8rem;
             text-transform: uppercase;
             letter-spacing: 1.5px;
-            color: var(--text-secondary);
-            margin: 0 0 24px 0;
+            color: var(--accent-color);
+            margin: 0 0 20px 0;
             font-weight: 600;
         }
 
         p {
             color: var(--text-secondary);
             margin-bottom: 24px;
-            font-size: 1rem;
+            font-size: 1.05rem;
         }
 
-        /* Selection Dropdown */
-        select.competency-select {
-            width: 100%;
-            padding: 12px;
+        /* Selection Inputs */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
             margin-bottom: 24px;
-            border: 1px solid var(--border-default);
-            border-radius: var(--radius-btn);
-            background-color: var(--bg-neutral);
-            color: var(--text-primary);
-            font-size: 0.95rem;
-            font-family: var(--font-main);
         }
 
-        select.competency-select:focus {
-            outline: 2px solid var(--accent-light);
+        .input-group {
+            margin-bottom: 0;
+        }
+        
+        .input-group.full-width {
+            grid-column: span 2;
+        }
+
+        label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        select.form-select {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid #D1D5DB;
+            border-radius: var(--radius-btn);
+            background-color: #FFFFFF;
+            color: var(--text-primary);
+            font-size: 1rem;
+            font-family: var(--font-body);
+            cursor: pointer;
+            transition: all 0.2s;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%234F46E5%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+            background-repeat: no-repeat;
+            background-position: right 16px top 50%;
+            background-size: 10px auto;
+        }
+
+        select.form-select:hover {
             border-color: var(--accent-color);
         }
 
-        /* Scenario Box */
+        select.form-select:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px var(--bg-accent-light);
+        }
+
+        /* Scenario Styling */
         .scenario-box {
-            background: var(--bg-neutral);
-            border-left: 3px solid var(--accent-color);
-            padding: 24px;
+            background-color: var(--bg-body);
+            border-left: 4px solid var(--accent-color);
+            padding: 28px;
             margin-bottom: 32px;
-            border-radius: 0 var(--radius-btn) var(--radius-btn) 0;
+            border-radius: 4px;
         }
         
         .scenario-label {
             display: block;
+            font-family: var(--font-body);
             font-size: 0.75rem;
             font-weight: 700;
             color: var(--accent-color);
-            margin-bottom: 8px;
+            margin-bottom: 12px;
             text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
-        /* Options */
+        .scenario-text {
+            font-family: var(--font-heading);
+            font-size: 1.15rem;
+            color: var(--text-primary);
+            font-style: italic;
+            margin: 0;
+            line-height: 1.7;
+        }
+
+        /* Question & Options */
+        .question-text {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 20px;
+            display: block;
+        }
+
         .options-list {
             display: flex;
             flex-direction: column;
@@ -156,109 +219,113 @@
         }
 
         button.option-btn {
-            background: var(--bg-card);
-            border: 1px solid var(--border-default);
-            padding: 16px 20px;
+            background: white;
+            border: 1px solid #D1D5DB;
+            padding: 18px 24px;
             border-radius: var(--radius-btn);
             text-align: left;
             cursor: pointer;
             transition: all 0.2s ease;
-            font-size: 0.95rem;
-            color: var(--text-primary);
-            font-family: var(--font-main);
+            font-size: 1rem;
+            color: var(--text-secondary);
+            font-family: var(--font-body);
             position: relative;
         }
 
         button.option-btn:hover {
             border-color: var(--accent-color);
-            background: var(--bg-neutral);
-        }
-
-        button.option-btn:focus {
-            outline: 2px solid var(--accent-light);
-            border-color: var(--accent-color);
+            background-color: var(--bg-accent-light);
+            color: var(--text-primary);
         }
 
         .option-prefix {
-            font-weight: 600;
-            color: var(--text-secondary);
-            margin-right: 8px;
+            font-weight: 700;
+            color: var(--accent-color);
+            margin-right: 12px;
+            font-size: 0.9rem;
         }
 
         /* Feedback Section */
         .feedback-section {
-            animation: fadeIn 0.4s ease-out;
+            animation: fadeIn 0.5s ease-out;
         }
 
         .feedback-card {
-            padding: 0;
+            background: var(--bg-neutral);
+            border-radius: var(--radius-card);
+            padding: 32px;
             margin-bottom: 24px;
+            border: 1px solid #E5E7EB;
         }
         
         .feedback-title {
-            font-size: 0.9rem;
+            font-family: var(--font-body);
+            font-size: 0.8rem;
             font-weight: 700;
-            color: var(--text-primary);
-            margin-bottom: 8px;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .feedback-text {
-            color: var(--text-secondary);
-            font-size: 1rem;
+            color: var(--text-primary);
+            font-size: 1.1rem;
             line-height: 1.6;
         }
         
         .analysis-block {
             margin-top: 24px;
             padding-top: 24px;
-            border-top: 1px solid var(--border-default);
+            border-top: 1px solid #E5E7EB;
         }
 
         .retry-prompt {
             margin-top: 20px;
             font-weight: 600;
             color: var(--accent-color);
-            font-size: 0.95rem;
+            font-size: 1rem;
         }
 
-        /* Primary Action Button */
+        /* Buttons */
         .primary-btn {
-            background-color: var(--accent-color);
+            background-color: var(--text-primary);
             color: white;
             border: none;
-            padding: 14px 28px;
+            padding: 16px 32px;
             border-radius: var(--radius-btn);
-            font-size: 0.95rem;
-            font-weight: 600;
+            font-size: 1rem;
+            font-weight: 500;
             cursor: pointer;
-            transition: background 0.2s;
-            align-self: flex-start;
-            margin-top: 20px;
+            transition: all 0.2s;
+            width: 100%;
         }
 
         .primary-btn:hover {
-            background-color: var(--accent-hover);
+            background-color: var(--accent-color);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
         }
 
         .restart-btn {
             background: transparent;
-            border: 1px solid var(--border-default);
-            color: var(--text-secondary);
-            padding: 12px 24px;
+            border: 2px solid var(--text-primary);
+            color: var(--text-primary);
+            padding: 14px 32px;
             border-radius: var(--radius-btn);
-            font-size: 0.9rem;
+            font-size: 0.95rem;
+            font-weight: 600;
             cursor: pointer;
-            margin-top: 32px;
+            transition: all 0.2s;
         }
 
         .restart-btn:hover {
-            border-color: var(--text-primary);
-            color: var(--text-primary);
+            background: var(--text-primary);
+            color: white;
         }
 
-        /* Utility */
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(8px); }
+            from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
     </style>
@@ -266,8 +333,10 @@
 <body>
 
 <div id="app-container">
-    <div class="status-bar">
-        <div class="status-fill" id="progress"></div>
+    <div class="header-bar">
+        <div class="status-bar">
+            <div class="status-fill" id="progress"></div>
+        </div>
     </div>
     <div id="content" class="content-area">
         <!-- Dynamic Content -->
@@ -275,245 +344,243 @@
 </div>
 
 <script>
-    // --- COMPETENCIES DATABASE ---
-    const competencies = [
-        {
-            id: 0,
-            title: "Clearly communicates the lesson’s objectives and key concepts at the outset",
-            level1: {
-                scenario: "You are standing at the front of the room. The bell has just rung, and students are settling into their seats, chatting and pulling out materials. You need to transition them into learning mode effectively.",
-                question: "How do you begin the lesson to ensure students are focused and clear on the goal?",
-                options: [
-                    { id: "A", label: "Option A", text: "Review the previous day's homework immediately to ensure everyone did it.", type: "confusing", consequence: "Students switch to 'task mode' but are unsure what the NEW learning goal is. Engagement is limited to compliance.", explanation: "Prioritizes administrative checks over instructional clarity." },
-                    { id: "B", label: "Option B", text: "State the specific learning objective, explaining what they will be able to do and why it matters.", type: "aligned", consequence: "The shift in energy is immediate. Students understand the 'hook' and why they are here today.", explanation: "Framing the destination helps students organize incoming information." },
-                    { id: "C", label: "Option C", text: "Tell the students to open page 45 and start reading silently.", type: "misaligned", consequence: "Students comply mechanically, but some are visibly disengaged or confused.", explanation: "Assigning a task without context creates passive compliance rather than active engagement." }
-                ]
+    // --- CONTEXT ENGINE: SUBJECT & GRADE LOGIC ---
+    // Defines the specific content, hooks, and misconceptions per grade/subject
+    const contextMap = {
+        "1-2": {
+            "Mathematics": {
+                topic: "basic addition and subtraction",
+                hook_misaligned: "writing '5 + 3 = ?' on the chalkboard without speaking",
+                hook_aligned: "bringing out a jar of marbles to demonstrate 'adding more'",
+                misconception: "thinking the equal sign means 'the answer is' rather than 'is the same as'",
+                skill_gap: "counting on fingers vs. mental grouping",
+                community_resource: "a local shopkeeper to talk about counting change"
             },
-            level2: {
-                scenario: "Midway through, a student asks: 'Why do we need to learn this? It seems useless.' Other students stop to listen.",
-                question: "How do you respond to this interruption?",
-                options: [
-                    { id: "A", label: "Option A", text: "Explain a specific real-world application of the concept relevant to their lives.", type: "aligned", consequence: "The student perks up. The class becomes attentive realizing this is a useful tool.", explanation: "Connecting content to reality validates the objective." },
-                    { id: "B", label: "Option B", text: "Tell them it will be on the final exam so they need to know it.", type: "misaligned", consequence: "Motivation shifts from learning to fear of failure.", explanation: "Using grades as justification bypasses the intrinsic value of the objective." },
-                    { id: "C", label: "Option C", text: "Ask them to hold all questions until the end.", type: "confusing", consequence: "The student disengages. The 'teachable moment' is lost.", explanation: "Prioritizes timeline over understanding." }
-                ]
+            "Languages": {
+                topic: "sight words and simple sentences",
+                hook_misaligned: "writing a list of 10 words and asking them to copy them",
+                hook_aligned: "holding up a mystery object and asking them to describe it",
+                misconception: "guessing words based on pictures rather than decoding",
+                skill_gap: "letter formation vs. knowing the sound",
+                community_resource: "a grandparent to tell a folktale"
             },
-            takeaway: "Clear communication of goals—and the 'why' behind them—helps students stay focused, confident, and engaged."
+            "Science": {
+                topic: "the five senses",
+                hook_misaligned: "reading the definitions of sight, sound, and smell from the book",
+                hook_aligned: "passing around a 'mystery bag' to guess objects by touch",
+                misconception: "thinking taste and smell are the same thing",
+                skill_gap: "observing vs. inferring (guessing)",
+                community_resource: "a gardener to talk about smelling flowers and feeling soil"
+            }
         },
-        {
-            id: 1,
-            title: "Differentiates between concept, skill, and essential information when articulating outcomes",
-            level1: {
-                scenario: "You are planning a unit on 'Maps'. You want to ensure students understand the core ideas, not just the mechanical tasks.",
-                question: "How do you frame your learning outcomes?",
-                options: [
-                    { id: "A", label: "Option A", text: "List every fact about maps they need to memorize.", type: "misaligned", consequence: "Students focus on rote memorization and miss the bigger picture.", explanation: "This treats all information as equally important, cluttering the learning path." },
-                    { id: "B", label: "Option B", text: "Distinguish 'Understanding Scale' (Concept) from 'Measuring Distance' (Skill).", type: "aligned", consequence: "Lesson planning becomes sharper. You design different activities for the concept vs. the skill.", explanation: "Separating concept and skill allows for targeted teaching strategies." },
-                    { id: "C", label: "Option C", text: "Combine everything into a broad goal: 'Learn about maps.'", type: "confusing", consequence: "Assessment becomes difficult because the goal is too vague.", explanation: "Vague goals lead to vague instruction." }
-                ]
+        "3-4": {
+            "Mathematics": {
+                topic: "multiplication and division",
+                hook_misaligned: "starting a timer and demanding they solve 20 problems",
+                hook_aligned: "arranging the desks into equal rows to show an array",
+                misconception: "thinking multiplication always results in a bigger number (confused by x0 or x1)",
+                skill_gap: "memorizing tables vs. understanding repeated addition",
+                community_resource: "a carpenter to measure wood for furniture"
             },
-            level2: {
-                scenario: "During the lesson on 'Scale', students can define it but struggle to actually calculate distance on a map.",
-                question: "What is your next instructional move?",
-                options: [
-                    { id: "A", label: "Option A", text: "Provide a hands-on practice session specifically on using a ruler and the legend.", type: "aligned", consequence: "Students bridge the gap between knowing 'what' it is and 'how' to do it.", explanation: "You identified a breakdown in 'skill' and addressed it with practice." },
-                    { id: "B", label: "Option B", text: "Re-explain the definition of scale.", type: "misaligned", consequence: "Students get bored; they already know the definition.", explanation: "Addressing a skill gap with concept explanation is ineffective." },
-                    { id: "C", label: "Option C", text: "Move on to the next chapter to keep pace.", type: "confusing", consequence: "Students leave with a permanent gap in their ability.", explanation: "Ignoring the gap ensures they will struggle later." }
-                ]
+            "Languages": {
+                topic: "reading comprehension and inference",
+                hook_misaligned: "reading a text aloud while they sit silently",
+                hook_aligned: "showing the cover of a book and asking 'What do you think happens?'",
+                misconception: "thinking reading is just saying the words right, not understanding meaning",
+                skill_gap: "decoding speed vs. comprehension depth",
+                community_resource: "a local journalist to talk about asking questions"
             },
-            takeaway: "Distinguishing between concepts (knowing) and skills (doing) ensures comprehensive learning."
+            "Science": {
+                topic: "water cycle and weather",
+                hook_misaligned: "drawing a complex diagram on the board and labeling it",
+                hook_aligned: "bringing in a glass of ice water to watch it 'sweat'",
+                misconception: "thinking clouds are made of gas/smoke rather than water droplets",
+                skill_gap: "recording data vs. interpreting data",
+                community_resource: "a farmer to explain why rain patterns matter"
+            }
         },
-        {
-            id: 2,
-            title: "Identifies a central theme that can connect different subjects (Language, Math, EVS)",
-            level1: {
-                scenario: "You are planning the upcoming month's lessons. You want learning to feel connected rather than fragmented across subjects.",
-                question: "How do you organize the units?",
-                options: [
-                    { id: "A", label: "Option A", text: "Teach chapters exactly in the order of the textbook for every subject.", type: "misaligned", consequence: "Students see subjects as isolated silos with no connection.", explanation: "Strict adherence to textbook order misses opportunities for holistic learning." },
-                    { id: "B", label: "Option B", text: "Choose a theme like 'Water'. Connect EVS (Sources), Math (Volume), and Language (Stories).", type: "aligned", consequence: "Students begin seeing connections. They apply math concepts to science problems naturally.", explanation: "Thematic planning reinforces concepts across domains." },
-                    { id: "C", label: "Option C", text: "Pick a theme but only apply it to the Art class.", type: "confusing", consequence: "The theme feels like a decoration rather than a learning framework.", explanation: "Superficial integration doesn't deepen understanding." }
-                ]
+        "5": {
+            "Mathematics": {
+                topic: "fractions and decimals",
+                hook_misaligned: "writing the rule 'invert and multiply' on the board",
+                hook_aligned: "discussing how to split a restaurant bill or pizza fairly",
+                misconception: "thinking 0.10 is larger than 0.9 because 10 is bigger than 9",
+                skill_gap: "procedural calculation vs. estimation",
+                community_resource: "a baker to talk about measuring ingredients"
             },
-            level2: {
-                scenario: "During the 'Water' theme, students in Math class ask, 'Why are we measuring buckets? This isn't Science class.'",
-                question: "How do you leverage the theme?",
-                options: [
-                    { id: "A", label: "Option A", text: "Say: 'To see how much water a family uses, linking back to our conservation discussion.'", type: "aligned", consequence: "Students understand the practical application of the math.", explanation: "Reinforcing the theme validates the cross-curricular approach." },
-                    { id: "B", label: "Option B", text: "Say: 'Just focus on the multiplication problem.'", type: "misaligned", consequence: "The connection is broken. Math becomes abstract again.", explanation: "Dismissing the connection undermines the thematic planning." },
-                    { id: "C", label: "Option C", text: "Say: 'Science is over, now is Math time.'", type: "confusing", consequence: "Students compartmentalize their thinking.", explanation: "Rigid subject boundaries hinder transfer of learning." }
-                ]
+            "Languages": {
+                topic: "persuasive writing",
+                hook_misaligned: "assigning a 500-word essay on 'Pollution'",
+                hook_aligned: "reading a controversial headline and asking for opinions",
+                misconception: "thinking an argument is just shouting your opinion",
+                skill_gap: "structuring an argument vs. listing complaints",
+                community_resource: "a town council member to discuss local issues"
             },
-            takeaway: "Thematic planning creates a cohesive learning experience where subjects reinforce each other."
-        },
-        {
-            id: 3,
-            title: "Identifies relevant community resources to enrich classroom activities",
-            level1: {
-                scenario: "You are teaching a unit on 'Our Helpers' (community workers). You want to move beyond just reading the textbook descriptions.",
-                question: "What resource do you bring into the lesson?",
-                options: [
-                    { id: "A", label: "Option A", text: "Invite a local nurse or postman to speak to the class.", type: "aligned", consequence: "Students are mesmerized. They ask real questions and gain respect for the profession.", explanation: "Human resources bring abstract concepts to life." },
-                    { id: "B", label: "Option B", text: "Read the chapter aloud to the class twice.", type: "misaligned", consequence: "Engagement is low. Learning remains theoretical.", explanation: "Repetition of text does not equal enrichment." },
-                    { id: "C", label: "Option C", text: "Show a video of a postman in a foreign country.", type: "confusing", consequence: "Students are interested but disconnect it from their own reality.", explanation: "Contextual relevance is key for community resources." }
-                ]
-            },
-            level2: {
-                scenario: "The guest speaker (the nurse) arrives, but is nervous and doesn't know what to say to the kids.",
-                question: "How do you facilitate?",
-                options: [
-                    { id: "A", label: "Option A", text: "Have student-prepared questions ready to guide the conversation.", type: "aligned", consequence: "The session flows smoothly. Students feel ownership of the interview.", explanation: "Preparation scaffolds the interaction for both the guest and students." },
-                    { id: "B", label: "Option B", text: "Sit back and hope the kids ask something.", type: "misaligned", consequence: "Awkward silence ensues. The session feels like a waste of time.", explanation: "Unstructured community interactions can fail without teacher guidance." },
-                    { id: "C", label: "Option C", text: "Take over and lecture about nursing yourself.", type: "confusing", consequence: "The guest becomes a prop. The authenticity is lost.", explanation: "The goal is to hear the community voice, not the teacher's." }
-                ]
-            },
-            takeaway: "Community resources connect the classroom to the real world, making learning tangible."
-        },
-        {
-            id: 4,
-            title: "Guides students in using textbook features (tables, headings, visuals)",
-            level1: {
-                scenario: "You are introducing a new, dense chapter in the Science textbook. Students often feel overwhelmed by the amount of text.",
-                question: "How do you start the reading process?",
-                options: [
-                    { id: "A", label: "Option A", text: "Do a 'textbook walk': discuss the headings, pictures, and captions before reading.", type: "aligned", consequence: "Students build a mental scaffold. They predict what they will learn.", explanation: "Pre-reading strategies activate prior knowledge." },
-                    { id: "B", label: "Option B", text: "Start reading paragraph 1 immediately.", type: "misaligned", consequence: "Students get lost in details without understanding the main idea.", explanation: "Diving in without structure increases cognitive load." },
-                    { id: "C", label: "Option C", text: "Tell them to ignore the pictures and focus on the bold words.", type: "confusing", consequence: "Students miss crucial visual context meant to explain the text.", explanation: "Visuals are key learning aids, not decorations." }
-                ]
-            },
-            level2: {
-                scenario: "A student is stuck on a difficult paragraph and is just staring at the page.",
-                question: "How do you guide them using the text features?",
-                options: [
-                    { id: "A", label: "Option A", text: "Ask: 'Look at the chart next to this text. What does it tell you about these numbers?'", type: "aligned", consequence: "The student makes the connection and understands the text through the visual.", explanation: "Using text features helps decode complex information." },
-                    { id: "B", label: "Option B", text: "Read it aloud to them.", type: "misaligned", consequence: "The student relies on you rather than the book.", explanation: "This solves the immediate problem but builds dependency." },
-                    { id: "C", label: "Option C", text: "Tell them to skip it.", type: "confusing", consequence: "The student learns that difficult content is optional.", explanation: "Avoidance is not a reading strategy." }
-                ]
-            },
-            takeaway: "Textbooks are tools. Teaching students how to navigate them builds independent learning skills."
-        },
-        {
-            id: 5,
-            title: "Collaborates with students to create classroom norms and routines",
-            level1: {
-                scenario: "It is the first week of school. You want the classroom to run smoothly, but currently, students are interrupting each other constantly.",
-                question: "How do you establish a rule about speaking?",
-                options: [
-                    { id: "A", label: "Option A", text: "Post a list of 'Do Not' rules on the wall immediately.", type: "misaligned", consequence: "Students feel policed. They follow rules only when you are watching.", explanation: "Imposed rules lack student buy-in." },
-                    { id: "B", label: "Option B", text: "Facilitate a discussion: 'What do we need to do so everyone can be heard?'", type: "aligned", consequence: "Students suggest 'One voice at a time'. They agree to it because they see the value.", explanation: "Co-creation fosters ownership and self-regulation." },
-                    { id: "C", label: "Option C", text: "Ignore it and hope they settle down.", type: "confusing", consequence: "Chaos continues. The loudest students dominate.", explanation: "Passive management leads to a chaotic environment." }
-                ]
-            },
-            level2: {
-                scenario: "Two weeks later, a student interrupts a peer. The class looks at you.",
-                question: "How do you enforce the norm?",
-                options: [
-                    { id: "A", label: "Option A", text: "Ask the class: 'What was our agreement about listening?'", type: "aligned", consequence: "The students self-correct. The norm is reinforced by the community.", explanation: "Referencing the shared agreement reinforces the culture." },
-                    { id: "B", label: "Option B", text: "Shout 'Quiet!'", type: "misaligned", consequence: "The behavior stops out of fear, not respect.", explanation: "Reactive yelling undermines the collaborative culture." },
-                    { id: "C", label: "Option C", text: "Let it slide this time.", type: "confusing", consequence: "Students realize the rule is inconsistent.", explanation: "Inconsistency weakens the norm." }
-                ]
-            },
-            takeaway: "When students help create the rules, they are more likely to respect and uphold them."
-        },
-        {
-            id: 6,
-            title: "Reinforces desired behaviours using proactive strategies (appreciation, recognition)",
-            level1: {
-                scenario: "The class is transitioning to group work. Most groups are noisy, but one group has started working quietly.",
-                question: "How do you address the class?",
-                options: [
-                    { id: "A", label: "Option A", text: "Loudly recognize the working group: 'I notice Group 3 has their materials out and is whispering.'", type: "aligned", consequence: "Other groups look at Group 3 and mimic their behavior to get recognition.", explanation: "Highlighting the positive models the desired behavior for others." },
-                    { id: "B", label: "Option B", text: "Shout at the noisy groups to be quiet.", type: "misaligned", consequence: "The noise drops for a second, then returns. The tone of the room becomes tense.", explanation: "Negative attention reinforces negative behavior." },
-                    { id: "C", label: "Option C", text: "Wait silently at the front for 5 minutes.", type: "confusing", consequence: "Valuable learning time is lost. Students think the delay is break time.", explanation: "Passive waiting wastes instructional time." }
-                ]
-            },
-            level2: {
-                scenario: "A student who usually misbehaves is actually sitting quietly today.",
-                question: "What is your move?",
-                options: [
-                    { id: "A", label: "Option A", text: "Privately whisper: 'I appreciate how focused you are today.'", type: "aligned", consequence: "The student smiles and works harder, feeling seen for the right reasons.", explanation: "Positive reinforcement builds a new self-image for the student." },
-                    { id: "B", label: "Option B", text: "Ignore it; they should be doing this anyway.", type: "misaligned", consequence: "The student eventually acts out to get attention.", explanation: "Ignoring improvement demotivates the student." },
-                    { id: "C", label: "Option C", text: "Announce loudly: 'Look everyone, he is finally behaving!'", type: "confusing", consequence: "The student feels embarrassed and acts out to save face.", explanation: "Backhanded compliments damage relationships." }
-                ]
-            },
-            takeaway: "Proactive recognition creates a positive cycle where students strive for success."
-        },
-        {
-            id: 7,
-            title: "Organises physical setup for accessibility and inclusion",
-            level1: {
-                scenario: "You are planning a group activity. You have a student who uses a wheelchair and several students who get distracted easily.",
-                question: "How do you arrange the room?",
-                options: [
-                    { id: "A", label: "Option A", text: "Leave desks in rows and tell students to turn around.", type: "misaligned", consequence: "Interaction is awkward. The student in the wheelchair is blocked by chairs.", explanation: "Rigid layouts hinder collaboration and inclusion." },
-                    { id: "B", label: "Option B", text: "Arrange desks in clusters with wide pathways. Place the wheelchair user in an accessible but central group.", type: "aligned", consequence: "All students participate equally. Movement is easy.", explanation: "Physical access is the first step to social inclusion." },
-                    { id: "C", label: "Option C", text: "Put the wheelchair user near the door so they can leave easily.", type: "confusing", consequence: "The student feels marginalized and excluded from the learning community.", explanation: "Segregation in the name of convenience is exclusion." }
-                ]
-            },
-            level2: {
-                scenario: "During the activity, the noise level rises, and a student with sensory sensitivity covers their ears.",
-                question: "How does the environment support them?",
-                options: [
-                    { id: "A", label: "Option A", text: "Direct them to a pre-planned 'Quiet Corner' with headphones where they can still see the work.", type: "aligned", consequence: "The student regulates themselves and returns to the group later.", explanation: "Inclusive spaces account for sensory needs." },
-                    { id: "B", label: "Option B", text: "Tell them to toughen up.", type: "misaligned", consequence: "The student has a meltdown and disrupts the class.", explanation: "Ignoring sensory needs leads to behavioral issues." },
-                    { id: "C", label: "Option C", text: "Send them out of the class.", type: "confusing", consequence: "The student misses the learning.", explanation: "Removal denies access to the curriculum." }
-                ]
-            },
-            takeaway: "The physical environment dictates who can participate. Design for the margins to include everyone."
-        },
-        {
-            id: 8,
-            title: "Creates a context/hook using questions, stories, or prompts",
-            level1: {
-                scenario: "You are starting a lesson on 'Fractions'. You want to ensure students care about the concept before teaching the math.",
-                question: "How do you introduce the topic?",
-                options: [
-                    { id: "A", label: "Option A", text: "Write '1/2 + 1/4' on the board and ask them to solve it.", type: "misaligned", consequence: "Students feel anxious. They see it as abstract work.", explanation: "Starting with abstract mechanics creates resistance." },
-                    { id: "B", label: "Option B", text: "Tell a story: 'I have one pizza and three friends. How do I make sure we all get a fair share?'", type: "aligned", consequence: "Students immediately offer solutions. They are doing math without realizing it.", explanation: "Contextualizing math makes it accessible and intuitive." },
-                    { id: "C", label: "Option C", text: "Read the definition of a numerator from the book.", type: "confusing", consequence: "Students memorize words but lack conceptual understanding.", explanation: "Definitions should follow understanding, not precede it." }
-                ]
-            },
-            level2: {
-                scenario: "A student says, 'Just cut it in four pieces.' You want to deepen the thinking.",
-                question: "How do you respond?",
-                options: [
-                    { id: "A", label: "Option A", text: "Ask: 'What if one friend isn't hungry? Does fair mean equal?'", type: "aligned", consequence: "Students debate. The thinking moves from simple division to equivalence.", explanation: "Probing questions deepen the context." },
-                    { id: "B", label: "Option B", text: "Say: 'Correct. Next page.'", type: "misaligned", consequence: "The thinking stops. The lesson becomes superficial.", explanation: "Stopping at the first right answer limits depth." },
-                    { id: "C", label: "Option C", text: "Say: 'No, look at the formula.'", type: "confusing", consequence: "Students are confused between their intuition and the rule.", explanation: "Disconnecting intuition from rules hinders understanding." }
-                ]
-            },
-            takeaway: "A good hook bridges the gap between the student's world and the curriculum."
-        },
-        {
-            id: 9,
-            title: "Sources and uses internet/digital tools to promote student-led inquiry",
-            level1: {
-                scenario: "A student asks a complex question about space that isn't in the textbook: 'What happens if you fall into a black hole?'",
-                question: "How do you use this to promote inquiry?",
-                options: [
-                    { id: "A", label: "Option A", text: "Say: 'That's not in the syllabus. Let's focus on the solar system.'", type: "misaligned", consequence: "Curiosity is crushed. Students learn that questions are distractions.", explanation: "Sticking rigidly to the syllabus kills inquiry." },
-                    { id: "B", label: "Option B", text: "Project a curated simulation or guide them to a safe search engine to find the answer.", type: "aligned", consequence: "The class is fascinated. They learn how to find information.", explanation: "Digital tools allow for just-in-time learning." },
-                    { id: "C", label: "Option C", text: "Give them a long lecture about what you think happens.", type: "confusing", consequence: "Students listen passively. They don't learn how to find answers themselves.", explanation: "Providing the answer denies the opportunity for inquiry." }
-                ]
-            },
-            level2: {
-                scenario: "Students find two different answers online. One says you stretch like spaghetti, one says you burn up.",
-                question: "How do you handle the conflicting info?",
-                options: [
-                    { id: "A", label: "Option A", text: "Ask: 'Which source looks more reliable? Who wrote these?'", type: "aligned", consequence: "Students look at the source URL. They learn digital literacy.", explanation: "Inquiry includes evaluating sources." },
-                    { id: "B", label: "Option B", text: "Pick one and say 'This is the right one.'", type: "misaligned", consequence: "Students accept authority over evidence.", explanation: "Arbitrary selection undermines critical thinking." },
-                    { id: "C", label: "Option C", text: "Say 'The internet is always wrong.'", type: "confusing", consequence: "Students lose trust in research tools.", explanation: "Blanket dismissal is not helpful." }
-                ]
-            },
-            takeaway: "Technology isn't just for delivery; it's a tool for curiosity and critical thinking."
+            "Science": {
+                topic: "ecosystems and interdependence",
+                hook_misaligned: "listing the producers, consumers, and decomposers",
+                hook_aligned: "asking 'What would happen if all the bees disappeared tomorrow?'",
+                misconception: "thinking plants get food from the soil, not the sun",
+                skill_gap: "identifying parts vs. understanding systems",
+                community_resource: "a park ranger to discuss local wildlife protection"
+            }
         }
-    ];
+    };
+
+    // --- COMPETENCY GENERATOR ---
+    const getCompetencies = (grade, subject) => {
+        const ctx = contextMap[grade][subject];
+        
+        return [
+            {
+                id: 0,
+                title: "Clearly communicates the lesson’s objectives and key concepts at the outset",
+                level1: {
+                    scenario: `You are about to start a **${grade}** lesson on **${ctx.topic}**. Students are settling in, chatting, and organizing their desks. You need to transition them into learning mode.`,
+                    question: "How do you begin the lesson to ensure clear focus?",
+                    options: [
+                        { id: "A", label: "Option A", text: "Immediately review the previous day's homework errors.", type: "confusing", consequence: "Students focus on past mistakes rather than the new goal.", explanation: "Prioritizes administrative correction over instructional clarity." },
+                        { id: "B", label: "Option B", text: `Explicitly state: 'Today we will explore ${ctx.topic} so that you can...'`, type: "aligned", consequence: "Students understand the destination and 'hook' of the lesson.", explanation: "Framing the objective helps students organize incoming information." },
+                        { id: "C", label: "Option C", text: "Instruct them to open their textbooks and read silently.", type: "misaligned", consequence: "Students comply mechanically but lack mental engagement.", explanation: "Assigning a task without context creates passive compliance." }
+                    ]
+                },
+                level2: {
+                    scenario: "A student interrupts and asks: 'Why do we even need to learn this? I'll never use it.'",
+                    question: "How do you respond?",
+                    options: [
+                        { id: "A", label: "Option A", text: "Explain a specific real-world scenario where this skill is essential.", type: "aligned", consequence: "The student perks up, realizing the concept has value.", explanation: "Validating the utility of the objective increases buy-in." },
+                        { id: "B", label: "Option B", text: "Tell them it's required for the upcoming standardized test.", type: "misaligned", consequence: "Motivation shifts to fear and compliance.", explanation: "External pressure bypasses intrinsic motivation." },
+                        { id: "C", label: "Option C", text: "Ask them to save all questions for the end of class.", type: "confusing", consequence: "The teachable moment is lost; curiosity is stifled.", explanation: "Prioritizing the timeline over understanding reduces engagement." }
+                    ]
+                },
+                takeaway: "Clear communication of goals—and the 'why'—helps students stay focused."
+            },
+            {
+                id: 1,
+                title: "Differentiates between concept, skill, and essential information",
+                level1: {
+                    scenario: `You are planning a unit on **${ctx.topic}**. You want to ensure deep understanding, not just surface-level memorization.`,
+                    question: "How do you frame your learning outcomes?",
+                    options: [
+                        { id: "A", label: "Option A", text: "List every fact and definition they need to memorize.", type: "misaligned", consequence: "Students focus on rote memorization, missing the big picture.", explanation: "Treating all information as equal clutters the learning path." },
+                        { id: "B", label: "Option B", text: "Distinguish the core Concept from the mechanical Skill.", type: "aligned", consequence: "Planning is sharper; you design distinct activities for understanding vs. doing.", explanation: "Separating concept and skill allows for targeted teaching." },
+                        { id: "C", label: "Option C", text: `Write a broad goal: 'Learn about ${ctx.topic}.'`, type: "confusing", consequence: "Assessment becomes vague and difficult.", explanation: "Vague goals lead to vague instruction." }
+                    ]
+                },
+                level2: {
+                    scenario: `Students seem to grasp the general idea but keep making the mistake of ${ctx.misconception}.`,
+                    question: "What is your next instructional move?",
+                    options: [
+                        { id: "A", label: "Option A", text: "Design a specific practice activity addressing that misconception.", type: "aligned", consequence: "Students bridge the gap and correct their mental model.", explanation: "Identifying specific breakdowns allows for targeted remediation." },
+                        { id: "B", label: "Option B", text: "Re-explain the definition from the start.", type: "misaligned", consequence: "Students tune out; they already know the definition.", explanation: "Restating the concept doesn't fix a specific misunderstanding." },
+                        { id: "C", label: "Option C", text: "Move on to the next chapter to stay on schedule.", type: "confusing", consequence: "The misconception becomes permanent.", explanation: "Ignoring gaps ensures future struggle." }
+                    ]
+                },
+                takeaway: "Distinguishing between concepts (knowing) and skills (doing) ensures comprehensive learning."
+            },
+            {
+                id: 2,
+                title: "Identifies a central theme that can connect different subjects",
+                level1: {
+                    scenario: `You are teaching **${ctx.topic}** in ${subject}. You want to connect it to other subjects to make learning holistic.`,
+                    question: "How do you organize the unit?",
+                    options: [
+                        { id: "A", label: "Option A", text: "Follow the textbook order exactly for each subject.", type: "misaligned", consequence: "Subjects remain isolated silos.", explanation: "Misses opportunities for holistic learning." },
+                        { id: "B", label: "Option B", text: "Choose a theme (e.g., 'Patterns') that links this topic to others.", type: "aligned", consequence: "Students start seeing connections across domains.", explanation: "Thematic planning reinforces concepts." },
+                        { id: "C", label: "Option C", text: "Pick a theme but only apply it to Art class.", type: "confusing", consequence: "The theme feels like a decoration.", explanation: "Superficial integration doesn't deepen understanding." }
+                    ]
+                },
+                level2: {
+                    scenario: "Students ask: 'Why are we talking about this here? This feels like a different subject.'",
+                    question: "How do you leverage the theme?",
+                    options: [
+                        { id: "A", label: "Option A", text: "Explicitly explain the connection between the subjects.", type: "aligned", consequence: "Students understand the transferability of knowledge.", explanation: "Reinforcing the theme validates the approach." },
+                        { id: "B", label: "Option B", text: "Tell them to just focus on the task at hand.", type: "misaligned", consequence: "The connection is severed.", explanation: "Dismissing the connection undermines the plan." },
+                        { id: "C", label: "Option C", text: "Say 'We are done with that subject now.'", type: "confusing", consequence: "Students compartmentalize their thinking.", explanation: "Rigid boundaries hinder transfer." }
+                    ]
+                },
+                takeaway: "Thematic planning creates a cohesive learning experience."
+            },
+            {
+                id: 3,
+                title: "Identifies relevant community resources to enrich classroom activities",
+                level1: {
+                    scenario: `You are teaching **${ctx.topic}**. You want to move beyond the textbook description and bring the topic to life.`,
+                    question: "What resource do you bring in?",
+                    options: [
+                        { id: "A", label: "Option A", text: `Invite ${ctx.community_resource} to speak to the class.`, type: "aligned", consequence: "Students ask real questions and gain respect for the topic.", explanation: "Human resources bring abstract concepts to life." },
+                        { id: "B", label: "Option B", text: "Read the textbook chapter aloud twice.", type: "misaligned", consequence: "Engagement is low; learning remains theoretical.", explanation: "Repetition doesn't equal enrichment." },
+                        { id: "C", label: "Option C", text: "Show a video from a foreign country.", type: "confusing", consequence: "Students disconnect it from their own reality.", explanation: "Contextual relevance is key." }
+                    ]
+                },
+                level2: {
+                    scenario: "The guest speaker arrives but is nervous and silent in front of the class.",
+                    question: "How do you facilitate?",
+                    options: [
+                        { id: "A", label: "Option A", text: "Have student-prepared questions ready to prompt them.", type: "aligned", consequence: "The session flows smoothly; students feel ownership.", explanation: "Preparation scaffolds the interaction." },
+                        { id: "B", label: "Option B", text: "Sit back and wait for them to start.", type: "misaligned", consequence: "Awkward silence ensues.", explanation: "Unstructured interactions can fail." },
+                        { id: "C", label: "Option C", text: "Take over and lecture about the topic yourself.", type: "confusing", consequence: "The guest becomes a prop.", explanation: "The goal is to hear the community voice." }
+                    ]
+                },
+                takeaway: "Community resources connect the classroom to the real world."
+            },
+            {
+                id: 4,
+                title: "Guides students in using textbook features (tables, headings, visuals)",
+                level1: {
+                    scenario: `You are introducing a dense chapter on **${ctx.topic}**. Students look overwhelmed by the amount of text.`,
+                    question: "How do you start reading?",
+                    options: [
+                        { id: "A", label: "Option A", text: "Do a 'textbook walk': discuss headings and pictures first.", type: "aligned", consequence: "Students build a mental scaffold for the content.", explanation: "Pre-reading activates prior knowledge." },
+                        { id: "B", label: "Option B", text: "Start reading paragraph 1 immediately.", type: "misaligned", consequence: "Students get lost in details.", explanation: "Diving in increases cognitive load." },
+                        { id: "C", label: "Option C", text: "Ignore pictures, focus on bold words.", type: "confusing", consequence: "Students miss visual context.", explanation: "Visuals are key learning aids." }
+                    ]
+                },
+                level2: {
+                    scenario: "A student is stuck on a difficult paragraph and is staring blankly.",
+                    question: "How do you guide them?",
+                    options: [
+                        { id: "A", label: "Option A", text: "Ask: 'What does the chart next to this text tell you?'", type: "aligned", consequence: "Student connects visual to text to decode meaning.", explanation: "Using features decodes info." },
+                        { id: "B", label: "Option B", text: "Read it aloud to them.", type: "misaligned", consequence: "Student builds dependency.", explanation: "Solves immediate problem, not the skill gap." },
+                        { id: "C", label: "Option C", text: "Tell them to skip it.", type: "confusing", consequence: "Student learns to avoid difficulty.", explanation: "Avoidance is not a strategy." }
+                    ]
+                },
+                takeaway: "Textbooks are tools; navigation skills build independence."
+            },
+            {
+                id: 5,
+                title: "Creates a context/hook using questions, stories, or prompts",
+                level1: {
+                    scenario: `You are introducing **${ctx.topic}**. You want to ensure student buy-in before teaching the mechanics.`,
+                    question: "How do you introduce the topic?",
+                    options: [
+                        { id: "A", label: "Option A", text: `Start by ${ctx.hook_misaligned}.`, type: "misaligned", consequence: "Students feel anxious or bored.", explanation: "Abstract mechanics create resistance." },
+                        { id: "B", label: "Option B", text: `Start by ${ctx.hook_aligned}.`, type: "aligned", consequence: "Students immediately offer ideas/solutions.", explanation: "Contextualizing makes the abstract accessible." },
+                        { id: "C", label: "Option C", text: "Read the definition from the book.", type: "confusing", consequence: "Memorization without understanding.", explanation: "Definitions should follow understanding." }
+                    ]
+                },
+                level2: {
+                    scenario: "A student gives a simple, intuitive answer. You want to deepen their thinking.",
+                    question: "How do you respond?",
+                    options: [
+                        { id: "A", label: "Option A", text: "Ask a 'What if' probing question.", type: "aligned", consequence: "Students debate and refine their thinking.", explanation: "Probing deepens context." },
+                        { id: "B", label: "Option B", text: "Say 'Correct' and move on.", type: "misaligned", consequence: "Thinking stops.", explanation: "Stopping at the first right answer limits depth." },
+                        { id: "C", label: "Option C", text: "Say 'No, look at the rule.'", type: "confusing", consequence: "Confusion between intuition and rule.", explanation: "Disconnecting intuition hinders understanding." }
+                    ]
+                },
+                takeaway: "A good hook bridges the student's world and the curriculum."
+            }
+        ];
+    };
 
     // --- STATE ---
     const contentDiv = document.getElementById('content');
     const progressBar = document.getElementById('progress');
-    let currentStep = 0; // 0: Select, 1: Lvl1, 2: Lvl2, 3: End
-    let currentCompetencyIndex = 0;
+    let currentStep = 0; 
+    let selectedGrade = "1-2";
+    let selectedSubject = "Mathematics";
+    let selectedCompetencyIndex = 0;
+    let currentSimulationData = null;
 
     // --- RENDERERS ---
 
@@ -526,19 +593,49 @@
         currentStep = 0;
         setProgress(5);
         
-        const optionsHTML = competencies.map((c, index) => 
-            `<option value="${index}">${c.title}</option>`
-        ).join('');
+        const compTitles = [
+            "Communicating Objectives",
+            "Differentiating Outcomes",
+            "Thematic Planning",
+            "Community Resources",
+            "Textbook Features",
+            "Creating Hooks"
+        ];
+        
+        const compOptions = compTitles.map((t, i) => `<option value="${i}">${t}</option>`).join('');
 
         contentDiv.innerHTML = `
             <div style="animation: fadeIn 0.5s ease-out;">
                 <h2>Welcome</h2>
-                <h1>Select a Competency to Practice</h1>
-                <p>Choose an area you would like to focus on today:</p>
+                <h1>Simulate a Classroom Scenario</h1>
+                <p>Select your context to generate a realistic situation:</p>
                 
-                <select id="compSelect" class="competency-select">
-                    ${optionsHTML}
-                </select>
+                <div class="form-grid">
+                    <div class="input-group">
+                        <label>Grade Level</label>
+                        <select id="gradeSelect" class="form-select">
+                            <option value="1-2">Grades 1-2</option>
+                            <option value="3-4">Grades 3-4</option>
+                            <option value="5">Grade 5</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Subject</label>
+                        <select id="subjectSelect" class="form-select">
+                            <option value="Mathematics">Mathematics</option>
+                            <option value="Languages">Languages</option>
+                            <option value="Science">Science</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group full-width">
+                        <label>Target Competency</label>
+                        <select id="compSelect" class="form-select">
+                            ${compOptions}
+                        </select>
+                    </div>
+                </div>
 
                 <button class="primary-btn" onclick="startSimulation()">Start Simulation</button>
             </div>
@@ -546,19 +643,22 @@
     }
 
     function startSimulation() {
-        const select = document.getElementById('compSelect');
-        currentCompetencyIndex = parseInt(select.value);
+        selectedGrade = document.getElementById('gradeSelect').value;
+        selectedSubject = document.getElementById('subjectSelect').value;
+        selectedCompetencyIndex = parseInt(document.getElementById('compSelect').value);
+        
+        const allCompetencies = getCompetencies(selectedGrade, selectedSubject);
+        currentSimulationData = allCompetencies[selectedCompetencyIndex];
+        
         renderLevel1();
     }
 
-    // STEP 2 & 3: LEVEL 1 SCENARIO
+    // STEP 2: LEVEL 1
     function renderLevel1() {
         currentStep = 1;
-        setProgress(30);
-        
-        const data = competencies[currentCompetencyIndex];
-        
-        const optionsHTML = data.level1.options.map(opt => `
+        setProgress(33);
+        const data = currentSimulationData.level1;
+        const optionsHTML = data.options.map(opt => `
             <button class="option-btn" onclick="handleDecision('level1', '${opt.type}', '${opt.id}')">
                 <span class="option-prefix">${opt.label}:</span> ${opt.text}
             </button>
@@ -566,13 +666,15 @@
 
         contentDiv.innerHTML = `
             <div style="animation: fadeIn 0.5s ease-out;">
-                <h2>Competency Focus</h2>
-                <h1 style="font-size:1.1rem; margin-bottom:20px;">${data.title}</h1>
+                <h2>${selectedSubject} • Grades ${selectedGrade}</h2>
+                <h1>${currentSimulationData.title}</h1>
+                
                 <div class="scenario-box">
                     <span class="scenario-label">Scenario 1</span>
-                    ${data.level1.scenario}
+                    <p class="scenario-text">${data.scenario}</p>
                 </div>
-                <p><strong>${data.level1.question}</strong></p>
+                
+                <span class="question-text">${data.question}</span>
                 <div class="options-list">
                     ${optionsHTML}
                 </div>
@@ -580,47 +682,43 @@
         `;
     }
 
-    // STEP 4, 5, 6: DECISION LOGIC
+    // STEP 3: HANDLE DECISION
     window.handleDecision = function(level, type, optId) {
-        const data = competencies[currentCompetencyIndex];
-        const levelData = data[level];
+        const levelData = currentSimulationData[level];
         const selectedOpt = levelData.options.find(o => o.id === optId);
 
         if (type === 'aligned') {
-            // SUCCESS LOGIC
             if (level === 'level1') {
                 renderLvl1Success(selectedOpt);
             } else {
                 renderFinalSuccess(selectedOpt);
             }
         } else {
-            // FAILURE/RETRY LOGIC
             renderFailure(selectedOpt, level);
         }
     };
 
-    // STEP 5: ALIGNED RESPONSE (LEVEL 1)
+    // STEP 4: SUCCESS FEEDBACK (LEVEL 1)
     function renderLvl1Success(option) {
-        setProgress(60);
+        setProgress(66);
         contentDiv.innerHTML = `
             <div class="feedback-section">
-                <div class="feedback-card">
+                <h2>Positive Impact</h2>
+                <div class="feedback-card" style="background-color: #EEF2FF; border-color: #C7D2FE;">
                     <div class="feedback-title">Outcome</div>
                     <div class="feedback-text">${option.consequence}</div>
                 </div>
-                <button class="primary-btn" onclick="renderLevel2()">Continue to Next Situation</button>
+                <button class="primary-btn" onclick="renderLevel2()">Continue to Scenario 2</button>
             </div>
         `;
     }
 
-    // STEP 6: FOLLOW UP SCENARIO
+    // STEP 5: LEVEL 2
     function renderLevel2() {
         currentStep = 2;
         setProgress(80);
-        
-        const data = competencies[currentCompetencyIndex];
-        
-        const optionsHTML = data.level2.options.map(opt => `
+        const data = currentSimulationData.level2;
+        const optionsHTML = data.options.map(opt => `
             <button class="option-btn" onclick="handleDecision('level2', '${opt.type}', '${opt.id}')">
                 <span class="option-prefix">${opt.label}:</span> ${opt.text}
             </button>
@@ -628,11 +726,12 @@
 
         contentDiv.innerHTML = `
             <div style="animation: fadeIn 0.5s ease-out;">
+                <h2>${selectedSubject} • Grades ${selectedGrade}</h2>
                 <div class="scenario-box">
                     <span class="scenario-label">Scenario 2</span>
-                    ${data.level2.scenario}
+                    <p class="scenario-text">${data.scenario}</p>
                 </div>
-                <p><strong>${data.level2.question}</strong></p>
+                <span class="question-text">${data.question}</span>
                 <div class="options-list">
                     ${optionsHTML}
                 </div>
@@ -640,17 +739,16 @@
         `;
     }
 
-    // FAILURE/RETRY LOGIC
+    // FAILURE FEEDBACK
     function renderFailure(option, level) {
-        setProgress(currentStep === 1 ? 30 : 80); // Keep progress static or revert slightly
-        
-        // Determine which function to call to retry
+        setProgress(currentStep === 1 ? 33 : 80);
         const retryFunction = level === 'level1' ? 'renderLevel1()' : 'renderLevel2()';
 
         contentDiv.innerHTML = `
             <div class="feedback-section">
+                <h2>Classroom Impact</h2>
                 <div class="feedback-card">
-                    <div class="feedback-title">Classroom Consequence</div>
+                    <div class="feedback-title">Consequence</div>
                     <div class="feedback-text">${option.consequence}</div>
                     
                     <div class="analysis-block">
@@ -659,7 +757,8 @@
                     </div>
 
                     <div class="retry-prompt">
-                        Now that you know the impact, would you like to try again?
+                        <span style="font-size:1.2rem; margin-right:8px;">↺</span> 
+                        Now that you see the impact, would you like to try a different approach?
                     </div>
                 </div>
                 <button class="primary-btn" onclick="${retryFunction}">Try Again</button>
@@ -667,23 +766,22 @@
         `;
     }
 
-    // STEP 7: SUCCESS ENDING
+    // FINAL SUCCESS
     function renderFinalSuccess(option) {
         setProgress(100);
-        const data = competencies[currentCompetencyIndex];
-        
         contentDiv.innerHTML = `
             <div class="feedback-section">
-                <div class="feedback-card">
-                    <div class="feedback-title">Outcome</div>
+                <h2>Outcomes Achieved</h2>
+                <div class="feedback-card" style="background-color: #EEF2FF; border-color: #C7D2FE;">
+                    <div class="feedback-title">Immediate Result</div>
                     <div class="feedback-text">${option.consequence}</div>
                     
                     <div class="analysis-block">
                         <div class="feedback-title">Professional Takeaway</div>
-                        <div class="feedback-text">${data.takeaway}</div>
+                        <div class="feedback-text" style="font-weight:600; color:var(--text-primary);">${currentSimulationData.takeaway}</div>
                     </div>
                 </div>
-                <button class="restart-btn" onclick="renderSelection()">Choose New Competency</button>
+                <button class="restart-btn" onclick="renderSelection()">Select New Competency</button>
             </div>
         `;
     }
