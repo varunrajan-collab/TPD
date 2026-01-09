@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher Nudge: Activity vs. Learning</title>
+    <style>
+        :root {
+            /* Clean Light Theme */
+            --bg-body: #f3f4f6;
+            --bg-card: #ffffff;
+            --primary: #3b82f6; /* Bright Blue */
+            --primary-light: #eff6ff;
+            --success: #10b981; /* Emerald */
+            --success-light: #ecfdf5;
+            --error: #ef4444; /* Red */
+            --error-light: #fef2f2;
+            --text-main: #111827; /* Near Black */
+            --text-sub: #6b7280; /* Gray */
+            --border-color: #e5e7eb;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-body);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+            color: var(--text-main);
+            overflow: hidden; /* App handles scrolling */
+        }
+
+        /* App Container - Mobile First Card Style */
+        .app-container {
+            width: 100%;
+            max-width: 500px;
+            background: var(--bg-card);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            box-shadow: 0 0 40px rgba(0,0,0,0.05);
+        }
+
+        @media (min-width: 520px) {
+            .app-container {
+                min-height: auto;
+                height: 90vh;
+                margin-top: 5vh;
+                border-radius: 24px;
+                overflow: hidden;
+                border: 1px solid rgba(0,0,0,0.05);
+            }
+        }
+
+        /* --- Header: Step 4 (Situation) --- */
+        .situation-header {
+            background: white;
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border-color);
+            z-index: 10;
+        }
+
+        .situation-eyebrow {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 6px;
+        }
+
+        .situation-text {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-main);
+            line-height: 1.4;
+        }
+
+        /* --- Main Content Area --- */
+        .content-area {
+            flex: 1;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        /* --- Intro Screen: Step 1 --- */
+        .intro-wrapper {
+            text-align: center;
+            padding-top: 40px;
+        }
+        
+        .intro-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            display: inline-block;
+            background: var(--primary-light);
+            width: 80px;
+            height: 80px;
+            line-height: 80px;
+            border-radius: 50%;
+        }
+
+        .intro-title {
+            font-size: 1.75rem;
+            font-weight: 800;
+            margin-bottom: 12px;
+            color: var(--text-main);
+            letter-spacing: -0.5px;
+        }
+
+        .competency-card {
+            background: var(--bg-body);
+            border-radius: 16px;
+            padding: 24px;
+            margin: 32px 0;
+            text-align: left;
+            border: 1px solid var(--border-color);
+        }
+
+        /* --- Game Screen: Steps 2, 3, 5 --- */
+        .progress-container {
+            height: 6px;
+            background: var(--bg-body);
+            border-radius: 3px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: var(--primary);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .card-stage {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            perspective: 1000px;
+            margin-bottom: 20px;
+        }
+
+        .item-card {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 32px 24px;
+            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.1);
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: 500;
+            line-height: 1.5;
+            width: 100%;
+            position: relative;
+            transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.3s;
+        }
+
+        .item-card.fly-out {
+            transform: translateX(-50px) rotate(-10deg);
+            opacity: 0;
+        }
+
+        /* Buckets (Categories) */
+        .buckets-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-top: auto;
+        }
+
+        .bucket {
+            background: white;
+            border: 2px solid var(--border-color);
+            border-radius: 16px;
+            padding: 16px 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 80px;
+        }
+
+        .bucket:active { transform: scale(0.97); }
+        .bucket:hover { border-color: #cbd5e1; }
+
+        .bucket.selected {
+            border-color: var(--primary);
+            background-color: var(--primary-light);
+            color: var(--primary);
+        }
+
+        .bucket-label { font-weight: 700; font-size: 0.95rem; margin-bottom: 4px; }
+        .bucket-sub { font-size: 0.75rem; color: var(--text-sub); }
+
+        /* --- Feedback Overlay: Step 6 --- */
+        .feedback-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.98);
+            display: flex;
+            flex-direction: column;
+            padding: 32px;
+            z-index: 50;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+        }
+
+        .feedback-overlay.active { opacity: 1; pointer-events: auto; }
+
+        .feedback-tag {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            align-self: flex-start;
+        }
+
+        .tag-correct { background: var(--success-light); color: var(--success); }
+        .tag-incorrect { background: var(--error-light); color: var(--error); }
+
+        /* Step 6b: Explicit Correction UI */
+        .correction-box {
+            background: var(--bg-body);
+            border-left: 4px solid var(--text-sub);
+            padding: 16px;
+            margin-bottom: 24px;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .correction-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: var(--text-sub);
+            font-weight: 700;
+            margin-bottom: 4px;
+            display: block;
+        }
+        
+        .correction-value {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .feedback-explanation {
+            font-size: 1.05rem;
+            line-height: 1.6;
+            color: var(--text-sub);
+            margin-bottom: 32px;
+        }
+
+        /* --- Buttons --- */
+        .btn-primary {
+            background: var(--text-main);
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            width: 100%;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-primary:hover { opacity: 0.9; }
+
+        /* --- Utilities --- */
+        .hidden { display: none !important; }
+
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    
+    <!-- Header: The "Situation Line" (Step 4) -->
+    <div class="situation-header">
+        <div class="situation-eyebrow">Current Situation</div>
+        <div class="situation-text" id="situation-text">Loading...</div>
+    </div>
+
+    <div class="content-area">
+        
+        <!-- Screen 1: Intro (Step 1) -->
+        <div id="screen-intro" class="intro-wrapper">
+            <div class="intro-icon">🎯</div>
+            <h1 class="intro-title">Sorting & Aligning</h1>
+            
+            <div class="competency-card">
+                <div style="font-size: 0.75rem; font-weight: 700; color: var(--primary); text-transform: uppercase; margin-bottom: 8px;">Target Competency</div>
+                <div style="font-size: 1.1rem; font-weight: 600; line-height: 1.5;">
+                    Distinguish between "Activity" (Busy work) and "Learning" (Cognitive gain).
+                </div>
+            </div>
+
+            <p style="color: var(--text-sub); margin-bottom: 40px; line-height: 1.6;">
+                Read the classroom moment. Decide if it's proof of compliance or proof of thinking.
+            </p>
+
+            <button class="btn-primary" onclick="app.startGame()">Start Practice</button>
+        </div>
+
+        <!-- Screen 2: The Game (Steps 2, 3, 5) -->
+        <div id="screen-game" class="hidden" style="height: 100%; display: flex; flex-direction: column;">
+            
+            <div class="progress-container">
+                <div class="progress-bar" id="progress-bar"></div>
+            </div>
+
+            <div class="card-stage">
+                <div class="item-card" id="card-element">Loading Item...</div>
+            </div>
+
+            <div class="buckets-grid">
+                <div class="bucket" id="btn-cat-1" onclick="app.handleSort('cat_1')">
+                    <div class="bucket-label" id="label-cat-1">Category 1</div>
+                    <div class="bucket-sub" id="sub-cat-1">Desc</div>
+                </div>
+                <div class="bucket" id="btn-cat-2" onclick="app.handleSort('cat_2')">
+                    <div class="bucket-label" id="label-cat-2">Category 2</div>
+                    <div class="bucket-sub" id="sub-cat-2">Desc</div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Screen 3: Summary (Step 7, 8) -->
+        <div id="screen-summary" class="hidden intro-wrapper" style="padding-top: 20px;">
+            <div class="intro-icon" style="background: var(--success-light); color: var(--success);">✨</div>
+            <h1 class="intro-title">Well Done!</h1>
+            
+            <div class="competency-card" style="background: var(--success-light); border-color: var(--success);">
+                <div style="font-size: 0.75rem; font-weight: 700; color: var(--success); text-transform: uppercase; margin-bottom: 8px;">Key Takeaway</div>
+                <div id="final-takeaway" style="font-size: 1.1rem; font-weight: 600; color: #064e3b; line-height: 1.5;"></div>
+            </div>
+
+            <button class="btn-primary" onclick="location.reload()">Practice Again</button>
+        </div>
+
+    </div>
+
+    <!-- Screen 4: Instructional Feedback (Step 6) -->
+    <div id="feedback-overlay" class="feedback-overlay">
+        
+        <!-- 6a: Identify Correct/Incorrect -->
+        <div id="fb-tag" class="feedback-tag">Status</div>
+
+        <h2 id="fb-title" style="margin: 0 0 16px 0; font-size: 1.5rem;">Title</h2>
+
+        <!-- 6b: Explicit Correction Banner -->
+        <div id="fb-correction-box" class="correction-box">
+            <span class="correction-label">Correct Placement</span>
+            <span class="correction-value" id="fb-correct-cat">Category Name</span>
+        </div>
+
+        <!-- 6c: Explanation -->
+        <div class="feedback-explanation" id="fb-explanation">
+            Explanation goes here.
+        </div>
+
+        <div style="margin-top: auto;">
+            <button class="btn-primary" onclick="app.nextCard()">Next Item</button>
+        </div>
+    </div>
+
+</div>
+
+<script>
+/* CONTENT ENGINE 
+   Follows strict mapping: Competency -> Situation -> Items -> Logic -> Feedback
+*/
+const nudgeData = {
+    situation: "You are walking the room during independent practice time.",
+    categories: [
+        { 
+            id: "cat_1", 
+            label: "Proof of Activity", 
+            sub: "Compliance / Doing",
+            color: "#3b82f6"
+        },
+        { 
+            id: "cat_2", 
+            label: "Proof of Learning", 
+            sub: "Cognition / Thinking",
+            color: "#10b981"
+        }
+    ],
+    items: [
+        {
+            text: "\"Everyone is sitting silently copying the diagram from the board.\"",
+            correctCat: "cat_1",
+            explanation: "Silence and copying are compliance tasks. They prove students can transcribe, not that they understand the concept."
+        },
+        {
+            text: "\"Student A explains the concept to Student B in their own words.\"",
+            correctCat: "cat_2",
+            explanation: "Translation into 'own words' requires cognitive processing. This is strong evidence of learning."
+        },
+        {
+            text: "\"All students handed in the worksheet on time.\"",
+            correctCat: "cat_1",
+            explanation: "Completion is an administrative metric. A student can complete a worksheet with incorrect answers or without understanding."
+        },
+        {
+            text: "\"A student identifies the error in a wrong example on the board.\"",
+            correctCat: "cat_2",
+            explanation: "Error analysis requires a deep understanding of the rules and logic to spot what doesn't fit."
+        },
+        {
+            text: "\"The class shouts the answer in unison when prompted.\"",
+            correctCat: "cat_1",
+            explanation: "Choral response allows students to hide. They might be mimicking the rhythm rather than retrieving knowledge."
+        }
+    ],
+    takeaway: "Busy students aren't always learning students. Always look for evidence of thinking, not just evidence of working."
+};
+
+/* APP LOGIC */
+const app = {
+    index: 0,
+
+    init: function() {
+        // Load Situation (Step 4)
+        document.getElementById('situation-text').innerText = nudgeData.situation;
+        
+        // Load Categories (Step 2)
+        const cats = nudgeData.categories;
+        document.getElementById('label-cat-1').innerText = cats[0].label;
+        document.getElementById('sub-cat-1').innerText = cats[0].sub;
+        document.getElementById('label-cat-2').innerText = cats[1].label;
+        document.getElementById('sub-cat-2').innerText = cats[1].sub;
+    },
+
+    startGame: function() {
+        document.getElementById('screen-intro').classList.add('hidden');
+        document.getElementById('screen-game').classList.remove('hidden');
+        // Ensure flex display is active
+        document.getElementById('screen-game').style.display = 'flex';
+        this.renderCard();
+    },
+
+    renderCard: function() {
+        // Step 3: Show Items
+        const item = nudgeData.items[this.index];
+        const card = document.getElementById('card-element');
+        
+        // Reset State
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(10px)';
+        
+        setTimeout(() => {
+            card.innerText = item.text;
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+        }, 100);
+
+        // Update Progress
+        const pct = (this.index / nudgeData.items.length) * 100;
+        document.getElementById('progress-bar').style.width = pct + '%';
+    },
+
+    handleSort: function(selectedId) {
+        // Step 5: Teacher sorts
+        const item = nudgeData.items[this.index];
+        const isCorrect = (selectedId === item.correctCat);
+        
+        // Highlight button briefly
+        const btnId = (selectedId === 'cat_1') ? 'btn-cat-1' : 'btn-cat-2';
+        document.getElementById(btnId).classList.add('selected');
+
+        setTimeout(() => {
+            document.getElementById(btnId).classList.remove('selected');
+            this.showFeedback(isCorrect, item);
+        }, 200);
+    },
+
+    showFeedback: function(isCorrect, item) {
+        // Step 6: Instructional Feedback
+        const overlay = document.getElementById('feedback-overlay');
+        const tag = document.getElementById('fb-tag');
+        const title = document.getElementById('fb-title');
+        const correctBox = document.getElementById('fb-correction-box');
+        const correctText = document.getElementById('fb-correct-cat');
+        const expl = document.getElementById('fb-explanation');
+
+        // Get Category Labels
+        const correctCatObj = nudgeData.categories.find(c => c.id === item.correctCat);
+        
+        // 6a: Identify Correctness
+        if (isCorrect) {
+            tag.innerText = "Correct";
+            tag.className = "feedback-tag tag-correct";
+            title.innerText = "That's right!";
+            correctBox.style.borderLeftColor = "var(--success)";
+        } else {
+            tag.innerText = "Incorrect";
+            tag.className = "feedback-tag tag-incorrect";
+            title.innerText = "Not quite.";
+            correctBox.style.borderLeftColor = "var(--error)";
+        }
+
+        // 6b: Show Correct Placement
+        correctText.innerText = correctCatObj.label;
+
+        // 6c: Explain Why
+        expl.innerText = item.explanation;
+
+        overlay.classList.add('active');
+    },
+
+    nextCard: function() {
+        document.getElementById('feedback-overlay').classList.remove('active');
+        this.index++;
+        
+        if (this.index < nudgeData.items.length) {
+            this.renderCard();
+        } else {
+            this.endGame();
+        }
+    },
+
+    endGame: function() {
+        document.getElementById('screen-game').classList.add('hidden');
+        document.getElementById('screen-summary').classList.remove('hidden');
+        document.getElementById('situation-text').innerText = "Session Complete";
+        
+        // Step 7: Show Takeaway
+        document.getElementById('final-takeaway').innerText = nudgeData.takeaway;
+    }
+};
+
+// Initialize
+app.init();
+
+</script>
+</body>
+</html>
