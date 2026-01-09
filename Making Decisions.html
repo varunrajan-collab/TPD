@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Decision Nudge: Communicating Objectives</title>
+    <style>
+        :root {
+            /* Palette: Soft Teal & Slate */
+            --bg-color: #F0F4F8;
+            --surface-color: #FFFFFF;
+            --primary-accent: #2A9D8F; /* Soft Teal */
+            --primary-hover: #21867a;
+            --text-dark: #264653;
+            --text-body: #526770;
+            --text-light: #8fa6b0;
+            
+            /* Feedback Colors */
+            --success-bg: #E6FFFA;
+            --success-border: #B2F5EA;
+            --success-text: #285E61;
+            
+            --warning-bg: #FFFBEB;
+            --warning-border: #FEEBC8;
+            --warning-text: #9C4221;
+            
+            --error-bg: #FFF5F5;
+            --error-border: #FED7D7;
+            --error-text: #C53030;
+
+            /* Spacing & Radius */
+            --radius-lg: 24px;
+            --radius-md: 12px;
+            --shadow: 0 12px 40px -8px rgba(38, 70, 83, 0.12);
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-dark);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        /* Main Container */
+        #app {
+            background: var(--surface-color);
+            width: 100%;
+            max-width: 580px;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            position: relative;
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Top Progress Bar (Visual indicator of steps) */
+        .progress-bar {
+            height: 6px;
+            background: #E2E8F0;
+            width: 100%;
+        }
+        .progress-fill {
+            height: 100%;
+            background: var(--primary-accent);
+            width: 0%;
+            transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        /* Content Areas */
+        .content-wrapper {
+            padding: 40px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        /* Typography */
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 0 0 12px 0;
+            color: var(--text-dark);
+            line-height: 1.3;
+        }
+
+        h2 {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--primary-accent);
+            margin: 0 0 16px 0;
+            font-weight: 600;
+        }
+
+        p {
+            font-size: 1.05rem;
+            line-height: 1.6;
+            color: var(--text-body);
+            margin: 0 0 24px 0;
+        }
+
+        /* Scenario Box */
+        .scenario-card {
+            background: #F8FAFC;
+            border: 1px solid #E2E8F0;
+            padding: 24px;
+            border-radius: var(--radius-md);
+            margin-bottom: 32px;
+            position: relative;
+        }
+        
+        .scenario-card::before {
+            content: "SCENARIO";
+            position: absolute;
+            top: -10px;
+            left: 20px;
+            background: var(--surface-color);
+            padding: 0 8px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--text-light);
+        }
+
+        /* Buttons */
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        button.option-card {
+            background: var(--surface-color);
+            border: 2px solid #E2E8F0;
+            padding: 20px 24px;
+            border-radius: var(--radius-md);
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 1rem;
+            color: var(--text-dark);
+            font-weight: 500;
+            position: relative;
+        }
+
+        button.option-card:hover {
+            border-color: var(--primary-accent);
+            background: #F0FDFA;
+            transform: translateY(-2px);
+        }
+
+        button.option-card:active {
+            transform: translateY(0);
+        }
+
+        button.primary-btn {
+            background-color: var(--primary-accent);
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            align-self: flex-start;
+            margin-top: 20px;
+            box-shadow: 0 4px 12px rgba(42, 157, 143, 0.3);
+        }
+
+        button.primary-btn:hover {
+            background-color: var(--primary-hover);
+        }
+
+        button.retry-btn {
+            background-color: transparent;
+            color: var(--text-body);
+            border: 2px solid #E2E8F0;
+            padding: 14px 28px;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        button.retry-btn:hover {
+            border-color: var(--text-body);
+            color: var(--text-dark);
+        }
+
+        /* Feedback States */
+        .feedback-container {
+            border-radius: var(--radius-md);
+            padding: 24px;
+            margin-bottom: 24px;
+            animation: slideUp 0.4s ease-out;
+        }
+
+        .feedback-correct {
+            background: var(--success-bg);
+            border: 1px solid var(--success-border);
+            color: var(--success-text);
+        }
+
+        .feedback-warning {
+            background: var(--warning-bg);
+            border: 1px solid var(--warning-border);
+            color: var(--warning-text);
+        }
+
+        .feedback-error {
+            background: var(--error-bg);
+            border: 1px solid var(--error-border);
+            color: var(--error-text);
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        /* Utility */
+        .hidden { display: none; }
+        .tag {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+    </style>
+</head>
+<body>
+
+<div id="app">
+    <div class="progress-bar">
+        <div class="progress-fill" id="progress"></div>
+    </div>
+    <div id="content" class="content-wrapper">
+        <!-- Dynamic Content Injected Here -->
+    </div>
+</div>
+
+<script>
+    // --- NUDGE CONTENT DATABASE ---
+    // This object contains all text, scenarios, and logic paths.
+    
+    const nudgeData = {
+        competency: {
+            title: "The Competency",
+            text: "Clearly communicates the lesson’s objectives and key concepts at the outset.",
+            subtext: "This competency drives everything that follows."
+        },
+        level1: {
+            stepTitle: "Step 1: The Set Up",
+            scenario: "You are about to begin a new lesson. Students are settling down, and you want to start the class effectively.",
+            options: [
+                {
+                    id: "A",
+                    text: "Review the previous day's homework immediately to ensure everyone did it.",
+                    type: "confusing", // Confusing: Sounds reasonable but mixes ideas
+                    consequence: "Students switch to 'task mode' but are unsure what the NEW learning goal is.",
+                    feedback: "This creates a disjointed start. Students focus on past compliance rather than future learning."
+                },
+                {
+                    id: "B",
+                    text: "State clearly what students will be able to do by the end of the class and why it matters.",
+                    type: "correct", // Correct: Clearly applies competency
+                    consequence: "Students understand the goal of the lesson and begin making connections to what they already know.",
+                    feedback: "Perfect. Framing the 'Destination' helps students organize the information you are about to give them."
+                },
+                {
+                    id: "C",
+                    text: "Tell the students to open page 45 and start reading silently.",
+                    type: "incorrect", // Incorrect: Does not apply competency
+                    consequence: "Students comply mechanically, but some are already zoning out.",
+                    feedback: "Without context or a goal, students are just following orders, not engaging in learning."
+                }
+            ]
+        },
+        level2: {
+            stepTitle: "Step 2: The Deepener",
+            scenario: "Good start. Now, midway through your explanation, a student raises their hand and asks: 'Why do we need to learn this? It seems useless.'",
+            options: [
+                {
+                    id: "A",
+                    text: "Explain a specific real-world application of the concept relevant to their lives.",
+                    type: "correct",
+                    consequence: "The student perks up. The class becomes more attentive as they realize this is a tool they can use.",
+                    feedback: "Excellent. You re-connected the objective to their personal reality."
+                },
+                {
+                    id: "B",
+                    text: "Tell them it will be on the final exam so they need to know it.",
+                    type: "confusing",
+                    consequence: "The student nods but looks bored. Motivation shifts from 'learning' to 'fear of failure'.",
+                    feedback: "This relies on external pressure rather than the intrinsic value of the objective."
+                },
+                {
+                    id: "C",
+                    text: "Ask them to hold all questions until the end of the lecture.",
+                    type: "incorrect",
+                    consequence: "The student disengages completely. The 'teachable moment' is lost.",
+                    feedback: "Ignoring the 'Why' undermines the objective you set at the beginning."
+                }
+            ]
+        },
+        end: {
+            title: "Takeaway",
+            text: "Clearly communicating learning goals helps students stay focused, confident, and engaged throughout the lesson."
+        }
+    };
+
+    // --- APP STATE MANAGEMENT ---
+    
+    const contentDiv = document.getElementById('content');
+    const progressBar = document.getElementById('progress');
+    
+    let state = {
+        currentView: 'intro', // intro, level1, level2, end
+        progress: 10
+    };
+
+    // --- RENDER FUNCTIONS ---
+
+    function updateProgress(percent) {
+        progressBar.style.width = percent + '%';
+    }
+
+    // 1. INTRO SCREEN
+    function renderIntro() {
+        state.currentView = 'intro';
+        updateProgress(10);
+        
+        contentDiv.innerHTML = `
+            <div class="fade-in">
+                <h2>${nudgeData.competency.title}</h2>
+                <h1>${nudgeData.competency.text}</h1>
+                <p>${nudgeData.competency.subtext}</p>
+                <button class="primary-btn" onclick="renderLevel('level1')">Start Practice</button>
+            </div>
+        `;
+    }
+
+    // 2. SCENARIO SCREEN (Generic for Level 1 & 2)
+    function renderLevel(levelKey) {
+        const data = nudgeData[levelKey];
+        state.currentView = levelKey;
+        updateProgress(levelKey === 'level1' ? 35 : 70);
+
+        // Shuffle options to prevent pattern matching
+        const shuffledOptions = [...data.options].sort(() => Math.random() - 0.5);
+
+        const optionsHTML = shuffledOptions.map(opt => `
+            <button class="option-card" onclick="handleChoice('${levelKey}', '${opt.type}', this.dataset.consequence, this.dataset.feedback)" 
+                data-consequence="${opt.consequence}" 
+                data-feedback="${opt.feedback}">
+                ${opt.text}
+            </button>
+        `).join('');
+
+        contentDiv.innerHTML = `
+            <div class="fade-in">
+                <h2>${data.stepTitle}</h2>
+                <div class="scenario-card">
+                    ${data.scenario}
+                </div>
+                <div class="options-list">
+                    ${optionsHTML}
+                </div>
+            </div>
+        `;
+    }
+
+    // 3. HANDLE CHOICE LOGIC
+    window.handleChoice = function(levelKey, type, consequence, feedback) {
+        const isCorrect = type === 'correct';
+        let feedbackClass = '';
+        let titleText = '';
+
+        // Determine styling based on type
+        if (type === 'correct') {
+            feedbackClass = 'feedback-correct';
+            titleText = 'Positive Outcome';
+        } else if (type === 'confusing') {
+            feedbackClass = 'feedback-warning';
+            titleText = 'The Result';
+        } else {
+            feedbackClass = 'feedback-error';
+            titleText = 'The Result';
+        }
+
+        // Logic for Next Step
+        let actionButton = '';
+        if (isCorrect) {
+            if (levelKey === 'level1') {
+                actionButton = `<button class="primary-btn" onclick="renderLevel('level2')">Continue to Step 2 &rarr;</button>`;
+            } else {
+                actionButton = `<button class="primary-btn" onclick="renderEnd()">Finish</button>`;
+            }
+        } else {
+            // If wrong or confusing, we show impact then reset/end interaction (per nudge design)
+            actionButton = `<button class="retry-btn" onclick="renderIntro()">Restart Exercise</button>`;
+        }
+
+        contentDiv.innerHTML = `
+            <div class="fade-in">
+                <h2>${titleText}</h2>
+                <div class="feedback-container ${feedbackClass}">
+                    <p style="margin-bottom: 10px; font-weight: 600; color: inherit;">${consequence}</p>
+                    <hr style="border: 0; border-top: 1px solid rgba(0,0,0,0.1); margin: 15px 0;">
+                    <p style="font-size: 0.9rem; color: inherit;">${feedback}</p>
+                </div>
+                ${actionButton}
+            </div>
+        `;
+        
+        if (isCorrect) updateProgress(levelKey === 'level1' ? 50 : 90);
+    };
+
+    // 4. END SCREEN
+    function renderEnd() {
+        updateProgress(100);
+        contentDiv.innerHTML = `
+            <div class="fade-in" style="text-align: center;">
+                <div style="font-size: 3rem; margin-bottom: 20px;">🎉</div>
+                <h1>Well Done!</h1>
+                <p>${nudgeData.end.text}</p>
+                <button class="retry-btn" onclick="renderIntro()">Review Competency</button>
+            </div>
+        `;
+    }
+
+    // Initialize App
+    renderIntro();
+
+</script>
+
+</body>
+</html>
