@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Teacher Nudge: Activity vs. Learning</title>
+    <title>Teacher Nudge Library</title>
     <style>
         :root {
             /* Clean Light Theme */
@@ -11,6 +11,7 @@
             --bg-card: #ffffff;
             --primary: #3b82f6; /* Bright Blue */
             --primary-light: #eff6ff;
+            --primary-dark: #1d4ed8;
             --success: #10b981; /* Emerald */
             --success-light: #ecfdf5;
             --error: #ef4444; /* Red */
@@ -89,6 +90,58 @@
             position: relative;
         }
 
+        /* --- MENU SCREEN --- */
+        .menu-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .menu-item {
+            background: white;
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: left;
+            position: relative;
+            padding-right: 40px; /* Space for arrow */
+        }
+
+        .menu-item:hover {
+            border-color: var(--primary);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+        }
+
+        .menu-item::after {
+            content: "→";
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        .menu-tag {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-sub);
+            font-weight: 700;
+            margin-bottom: 4px;
+            display: block;
+        }
+        
+        .menu-title {
+            font-weight: 600;
+            color: var(--text-main);
+            font-size: 1rem;
+            line-height: 1.4;
+        }
+
+
         /* --- Intro Screen: Step 1 --- */
         .intro-wrapper {
             text-align: center;
@@ -163,17 +216,13 @@
             transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.3s;
         }
 
-        .item-card.fly-out {
-            transform: translateX(-50px) rotate(-10deg);
-            opacity: 0;
-        }
-
-        /* Buckets (Categories) */
+        /* Buckets (Categories) - Now Flexible for 2 or 3 items */
         .buckets-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
             margin-top: auto;
+            justify-content: center;
         }
 
         .bucket {
@@ -189,6 +238,7 @@
             align-items: center;
             justify-content: center;
             min-height: 80px;
+            flex: 1 1 45%; /* Allows 2 items to split 50%, or 3 items to wrap if needed */
         }
 
         .bucket:active { transform: scale(0.97); }
@@ -215,6 +265,7 @@
             opacity: 0;
             pointer-events: none;
             transition: opacity 0.2s ease;
+            overflow-y: auto; /* Handle long explanations */
         }
 
         .feedback-overlay.active { opacity: 1; pointer-events: auto; }
@@ -277,11 +328,35 @@
             cursor: pointer;
             transition: background 0.2s;
         }
+        
+        .btn-outline {
+            background: transparent;
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            width: 100%;
+            cursor: pointer;
+            margin-top: 12px;
+        }
 
         .btn-primary:hover { opacity: 0.9; }
+        .btn-outline:hover { background: var(--bg-body); }
 
         /* --- Utilities --- */
         .hidden { display: none !important; }
+
+        /* Dynamic Grid for 3 items */
+        .grid-3-col .bucket {
+            flex: 1 1 100%; /* On mobile stack them */
+        }
+        @media (min-width: 400px) {
+            .grid-3-col .bucket {
+                flex: 1 1 30%; /* On larger, side by side */
+            }
+        }
 
     </style>
 </head>
@@ -290,34 +365,43 @@
 <div class="app-container">
     
     <!-- Header: The "Situation Line" (Step 4) -->
-    <div class="situation-header">
-        <div class="situation-eyebrow">Current Situation</div>
-        <div class="situation-text" id="situation-text">Loading...</div>
+    <div class="situation-header" id="header-bar">
+        <div class="situation-eyebrow" id="header-label">Teacher Practice</div>
+        <div class="situation-text" id="situation-text">Select a competency to begin</div>
     </div>
 
     <div class="content-area">
         
+        <!-- Screen 0: Menu -->
+        <div id="screen-menu">
+            <h1 class="intro-title" style="font-size: 1.5rem; margin-bottom: 24px;">Practice Library</h1>
+            <div id="menu-list" class="menu-list">
+                <!-- Menu Items Injected via JS -->
+            </div>
+        </div>
+
         <!-- Screen 1: Intro (Step 1) -->
-        <div id="screen-intro" class="intro-wrapper">
-            <div class="intro-icon">🎯</div>
-            <h1 class="intro-title">Sorting & Aligning</h1>
+        <div id="screen-intro" class="intro-wrapper hidden">
+            <div class="intro-icon" id="intro-icon">🎯</div>
+            <h1 class="intro-title" id="competency-title">Competency</h1>
             
             <div class="competency-card">
                 <div style="font-size: 0.75rem; font-weight: 700; color: var(--primary); text-transform: uppercase; margin-bottom: 8px;">Target Competency</div>
-                <div style="font-size: 1.1rem; font-weight: 600; line-height: 1.5;">
-                    Distinguish between "Activity" (Busy work) and "Learning" (Cognitive gain).
+                <div style="font-size: 1.1rem; font-weight: 600; line-height: 1.5;" id="competency-desc">
+                    ...
                 </div>
             </div>
 
-            <p style="color: var(--text-sub); margin-bottom: 40px; line-height: 1.6;">
-                Read the classroom moment. Decide if it's proof of compliance or proof of thinking.
+            <p style="color: var(--text-sub); margin-bottom: 40px; line-height: 1.6;" id="intro-desc">
+                ...
             </p>
 
             <button class="btn-primary" onclick="app.startGame()">Start Practice</button>
+            <button class="btn-outline" onclick="app.showMenu()">Back to Library</button>
         </div>
 
         <!-- Screen 2: The Game (Steps 2, 3, 5) -->
-        <div id="screen-game" class="hidden" style="height: 100%; display: flex; flex-direction: column;">
+        <div id="screen-game" class="hidden" style="height: 100%; flex-direction: column;">
             
             <div class="progress-container">
                 <div class="progress-bar" id="progress-bar"></div>
@@ -327,15 +411,9 @@
                 <div class="item-card" id="card-element">Loading Item...</div>
             </div>
 
-            <div class="buckets-grid">
-                <div class="bucket" id="btn-cat-1" onclick="app.handleSort('cat_1')">
-                    <div class="bucket-label" id="label-cat-1">Category 1</div>
-                    <div class="bucket-sub" id="sub-cat-1">Desc</div>
-                </div>
-                <div class="bucket" id="btn-cat-2" onclick="app.handleSort('cat_2')">
-                    <div class="bucket-label" id="label-cat-2">Category 2</div>
-                    <div class="bucket-sub" id="sub-cat-2">Desc</div>
-                </div>
+            <!-- Dynamic buckets container -->
+            <div class="buckets-grid" id="buckets-container">
+                <!-- Buckets injected here -->
             </div>
 
         </div>
@@ -350,7 +428,8 @@
                 <div id="final-takeaway" style="font-size: 1.1rem; font-weight: 600; color: #064e3b; line-height: 1.5;"></div>
             </div>
 
-            <button class="btn-primary" onclick="location.reload()">Practice Again</button>
+            <button class="btn-primary" onclick="app.loadNudge(app.currentNudgeId)">Practice Again</button>
+            <button class="btn-outline" onclick="app.showMenu()">Choose New Competency</button>
         </div>
 
     </div>
@@ -382,85 +461,192 @@
 </div>
 
 <script>
-/* CONTENT ENGINE 
-   Follows strict mapping: Competency -> Situation -> Items -> Logic -> Feedback
+/* NUDGE LIBRARY
+   To add more scenarios, simply paste new objects into this array.
 */
-const nudgeData = {
-    situation: "You are walking the room during independent practice time.",
-    categories: [
-        { 
-            id: "cat_1", 
-            label: "Proof of Activity", 
-            sub: "Compliance / Doing",
-            color: "#3b82f6"
-        },
-        { 
-            id: "cat_2", 
-            label: "Proof of Learning", 
-            sub: "Cognition / Thinking",
-            color: "#10b981"
-        }
-    ],
-    items: [
-        {
-            text: "\"Everyone is sitting silently copying the diagram from the board.\"",
-            correctCat: "cat_1",
-            explanation: "Silence and copying are compliance tasks. They prove students can transcribe, not that they understand the concept."
-        },
-        {
-            text: "\"Student A explains the concept to Student B in their own words.\"",
-            correctCat: "cat_2",
-            explanation: "Translation into 'own words' requires cognitive processing. This is strong evidence of learning."
-        },
-        {
-            text: "\"All students handed in the worksheet on time.\"",
-            correctCat: "cat_1",
-            explanation: "Completion is an administrative metric. A student can complete a worksheet with incorrect answers or without understanding."
-        },
-        {
-            text: "\"A student identifies the error in a wrong example on the board.\"",
-            correctCat: "cat_2",
-            explanation: "Error analysis requires a deep understanding of the rules and logic to spot what doesn't fit."
-        },
-        {
-            text: "\"The class shouts the answer in unison when prompted.\"",
-            correctCat: "cat_1",
-            explanation: "Choral response allows students to hide. They might be mimicking the rhythm rather than retrieving knowledge."
-        }
-    ],
-    takeaway: "Busy students aren't always learning students. Always look for evidence of thinking, not just evidence of working."
-};
+const nudgeLibrary = [
+    {
+        id: "activity_vs_learning",
+        category: "Assessment",
+        title: "Activity vs. Learning",
+        competency: "Distinguish between 'Activity' (Busy work) and 'Learning' (Cognitive gain).",
+        intro_text: "Read the classroom moment. Decide if it's proof of compliance or proof of thinking.",
+        situation: "You are observing independent practice time.",
+        takeaway: "Busy students aren't always learning. Look for evidence of thinking, not just working.",
+        categories: [
+            { id: "c1", label: "Proof of Activity", sub: "Compliance / Doing" },
+            { id: "c2", label: "Proof of Learning", sub: "Cognition / Thinking" }
+        ],
+        items: [
+            { text: "\"Everyone is sitting silently copying the diagram.\"", correctCat: "c1", explanation: "Silence and copying are compliance tasks. They prove students can transcribe, not that they understand." },
+            { text: "\"Student A explains the concept to Student B in their own words.\"", correctCat: "c2", explanation: "Translation into 'own words' requires cognitive processing. This is strong evidence of learning." },
+            { text: "\"All students handed in the worksheet on time.\"", correctCat: "c1", explanation: "Completion is an administrative metric. Students can complete work without understanding it." },
+            { text: "\"A student identifies the error in a wrong example.\"", correctCat: "c2", explanation: "Error analysis requires deep understanding of the rules and logic." }
+        ]
+    },
+    {
+        id: "concept_skill_info",
+        category: "Planning",
+        title: "Concept, Skill, or Info?",
+        competency: "Differentiates between concept, skill, and essential information when articulating learning outcomes.",
+        intro_text: "Effective planning requires knowing if you want students to DO something, UNDERSTAND something, or REMEMBER something.",
+        situation: "You are drafting learning outcomes for your next Unit Plan.",
+        takeaway: "Align your teaching method to the type of outcome. Don't teach a skill like a fact, or a concept like a procedure.",
+        categories: [
+            { id: "c1", label: "Concept", sub: "Deep Understanding (Why)" },
+            { id: "c2", label: "Skill", sub: "Action / Procedure (How)" },
+            { id: "c3", label: "Information", sub: "Fact / Recall (What)" }
+        ],
+        items: [
+            { text: "Students will list the capitals of all 28 states.", correctCat: "c3", explanation: "This is pure recall of facts. It does not require deep understanding or physical skill." },
+            { text: "Students will explain how gravity affects planetary orbits.", correctCat: "c1", explanation: "This requires a mental model of cause-and-effect (Understanding)." },
+            { text: "Students will focus a microscope slide.", correctCat: "c2", explanation: "This is a physical/procedural capability. They must DO it." },
+            { text: "Students will draw a bar graph from data.", correctCat: "c2", explanation: "Constructing a graph is a skill (application of rules)." },
+            { text: "Students will define 'photosynthesis'.", correctCat: "c3", explanation: "Definitions are often treated as information to be recalled." }
+        ]
+    },
+    {
+        id: "proactive_vs_reactive",
+        category: "Classroom Mgmt",
+        title: "Proactive vs. Reactive",
+        competency: "Reinforces desired behaviours using proactive strategies rather than just reacting to negative ones.",
+        intro_text: "Are you preventing issues before they happen, or chasing them after they occur?",
+        situation: "Students are transitioning from their desks to the carpet area.",
+        takeaway: "Proactive strategies build culture. Reactive strategies only suppress chaos temporarily.",
+        categories: [
+            { id: "c1", label: "Proactive Strategy", sub: "Preventative / Positive" },
+            { id: "c2", label: "Reactive Strategy", sub: "Correction / Punitive" }
+        ],
+        items: [
+            { text: "\"I love how Table 3 is walking safely with arms folded.\"", correctCat: "c1", explanation: "Highlighting the positive behavior models it for others before they fail." },
+            { text: "\"Stop running!\"", correctCat: "c2", explanation: "This addresses the behavior only after it has failed. It gives attention to the negative." },
+            { text: "\"Remember, our goal is to be seated in 10 seconds.\"", correctCat: "c1", explanation: "Setting expectations/reminders before the action completes is proactive." },
+            { text: "\"Why is it so noisy in here?\"", correctCat: "c2", explanation: "A rhetorical question after the chaos has started is reactive." },
+            { text: "Teacher stands at the 'bottleneck' to guide traffic.", correctCat: "c1", explanation: "Changing physical position to prevent crowding is a proactive environmental intervention." }
+        ]
+    },
+    {
+        id: "objectives_clarity",
+        category: "Instruction",
+        title: "Clear Objectives",
+        competency: "Clearly communicates the lesson’s objectives and key concepts at the outset.",
+        intro_text: "Does the student know what they are learning, or just what work they have to do?",
+        situation: "You are starting the lesson and explaining the goal to students.",
+        takeaway: "Objectives describe the LEARNING. Instructions describe the WORK. Don't confuse them.",
+        categories: [
+            { id: "c1", label: "Clear Objective", sub: "Focus on Learning/Why" },
+            { id: "c2", label: "Instruction/Task", sub: "Focus on Doing/Compliance" }
+        ],
+        items: [
+            { text: "\"Today we will complete page 45 in the workbook.\"", correctCat: "c2", explanation: "This is a task. A student can do page 45 without knowing what they learned." },
+            { text: "\"We are learning to use adjectives so our stories are more vivid.\"", correctCat: "c1", explanation: "This explains WHAT (adjectives) and WHY (vivid stories)." },
+            { text: "\"Copy the questions from the board.\"", correctCat: "c2", explanation: "Purely instructional. It tells them the physical action required." },
+            { text: "\"By the end of this, you will be able to predict what happens next.\"", correctCat: "c1", explanation: "Focuses on the cognitive skill (predicting) they will acquire." }
+        ]
+    },
+    {
+        id: "environment_access",
+        category: "Environment",
+        title: "Inclusive Setup",
+        competency: "Organises the physical setup to be accessible and inclusive for diverse needs.",
+        intro_text: "Is your classroom setup helping students participate or creating barriers?",
+        situation: "You are arranging furniture and resources for a group project.",
+        takeaway: "The physical environment is the 'Third Teacher'. Ensure it invites everyone in.",
+        categories: [
+            { id: "c1", label: "Inclusive / Accessible", sub: "Removes Barriers" },
+            { id: "c2", label: "Barrier / Exclusionary", sub: "Creates Obstacles" }
+        ],
+        items: [
+            { text: "Wide walkways between all desk groups.", correctCat: "c1", explanation: "Allows movement for all students, including those with mobility aids." },
+            { text: "Materials placed on high shelves.", correctCat: "c2", explanation: "Prevents shorter students or those in wheelchairs from accessing resources independently." },
+            { text: "Labels include both text and pictures.", correctCat: "c1", explanation: "Supports non-readers and English language learners." },
+            { text: "Desks arranged facing the blank wall for 'distraction-free' work.", correctCat: "c2", explanation: "While well-intentioned, this can isolate students and prevent peer support." }
+        ]
+    }
+];
 
 /* APP LOGIC */
 const app = {
+    currentNudge: null,
+    currentNudgeId: null,
     index: 0,
 
     init: function() {
-        // Load Situation (Step 4)
-        document.getElementById('situation-text').innerText = nudgeData.situation;
-        
-        // Load Categories (Step 2)
-        const cats = nudgeData.categories;
-        document.getElementById('label-cat-1').innerText = cats[0].label;
-        document.getElementById('sub-cat-1').innerText = cats[0].sub;
-        document.getElementById('label-cat-2').innerText = cats[1].label;
-        document.getElementById('sub-cat-2').innerText = cats[1].sub;
+        this.renderMenu();
+    },
+
+    renderMenu: function() {
+        const list = document.getElementById('menu-list');
+        list.innerHTML = '';
+
+        nudgeLibrary.forEach(nudge => {
+            const item = document.createElement('div');
+            item.className = 'menu-item';
+            item.onclick = () => this.loadNudge(nudge.id);
+            item.innerHTML = `
+                <span class="menu-tag">${nudge.category}</span>
+                <span class="menu-title">${nudge.title}</span>
+            `;
+            list.appendChild(item);
+        });
+
+        this.showScreen('screen-menu');
+        document.getElementById('header-bar').style.display = 'block';
+        document.getElementById('header-label').innerText = 'Teacher Practice';
+        document.getElementById('situation-text').innerText = 'Select a competency to begin';
+    },
+
+    loadNudge: function(id) {
+        this.currentNudgeId = id;
+        this.currentNudge = nudgeLibrary.find(n => n.id === id);
+        this.index = 0;
+
+        // Setup Intro
+        document.getElementById('competency-title').innerText = this.currentNudge.title;
+        document.getElementById('competency-desc').innerText = this.currentNudge.competency;
+        document.getElementById('intro-desc').innerText = this.currentNudge.intro_text;
+
+        this.showScreen('screen-intro');
     },
 
     startGame: function() {
-        document.getElementById('screen-intro').classList.add('hidden');
-        document.getElementById('screen-game').classList.remove('hidden');
-        // Ensure flex display is active
-        document.getElementById('screen-game').style.display = 'flex';
+        // Setup Header
+        document.getElementById('header-label').innerText = 'Current Situation';
+        document.getElementById('situation-text').innerText = this.currentNudge.situation;
+
+        // Setup Categories (Dynamic Grid)
+        const bucketContainer = document.getElementById('buckets-container');
+        bucketContainer.innerHTML = '';
+        
+        // Check if we need 3 columns layout logic
+        if (this.currentNudge.categories.length > 2) {
+            bucketContainer.classList.add('grid-3-col');
+        } else {
+            bucketContainer.classList.remove('grid-3-col');
+        }
+
+        this.currentNudge.categories.forEach(cat => {
+            const btn = document.createElement('div');
+            btn.className = 'bucket';
+            btn.id = `btn-${cat.id}`;
+            btn.onclick = () => this.handleSort(cat.id);
+            btn.innerHTML = `
+                <div class="bucket-label">${cat.label}</div>
+                <div class="bucket-sub">${cat.sub}</div>
+            `;
+            bucketContainer.appendChild(btn);
+        });
+
+        this.showScreen('screen-game');
+        document.getElementById('screen-game').style.display = 'flex'; // Ensure flex
         this.renderCard();
     },
 
     renderCard: function() {
-        // Step 3: Show Items
-        const item = nudgeData.items[this.index];
+        const item = this.currentNudge.items[this.index];
         const card = document.getElementById('card-element');
         
-        // Reset State
+        // Reset Animation
         card.style.opacity = '0';
         card.style.transform = 'translateY(10px)';
         
@@ -470,28 +656,25 @@ const app = {
             card.style.transform = 'translateY(0)';
         }, 100);
 
-        // Update Progress
-        const pct = (this.index / nudgeData.items.length) * 100;
+        // Progress
+        const pct = (this.index / this.currentNudge.items.length) * 100;
         document.getElementById('progress-bar').style.width = pct + '%';
     },
 
     handleSort: function(selectedId) {
-        // Step 5: Teacher sorts
-        const item = nudgeData.items[this.index];
+        const item = this.currentNudge.items[this.index];
         const isCorrect = (selectedId === item.correctCat);
         
-        // Highlight button briefly
-        const btnId = (selectedId === 'cat_1') ? 'btn-cat-1' : 'btn-cat-2';
-        document.getElementById(btnId).classList.add('selected');
+        const btn = document.getElementById(`btn-${selectedId}`);
+        btn.classList.add('selected');
 
         setTimeout(() => {
-            document.getElementById(btnId).classList.remove('selected');
+            btn.classList.remove('selected');
             this.showFeedback(isCorrect, item);
         }, 200);
     },
 
     showFeedback: function(isCorrect, item) {
-        // Step 6: Instructional Feedback
         const overlay = document.getElementById('feedback-overlay');
         const tag = document.getElementById('fb-tag');
         const title = document.getElementById('fb-title');
@@ -499,10 +682,8 @@ const app = {
         const correctText = document.getElementById('fb-correct-cat');
         const expl = document.getElementById('fb-explanation');
 
-        // Get Category Labels
-        const correctCatObj = nudgeData.categories.find(c => c.id === item.correctCat);
+        const correctCatObj = this.currentNudge.categories.find(c => c.id === item.correctCat);
         
-        // 6a: Identify Correctness
         if (isCorrect) {
             tag.innerText = "Correct";
             tag.className = "feedback-tag tag-correct";
@@ -515,10 +696,7 @@ const app = {
             correctBox.style.borderLeftColor = "var(--error)";
         }
 
-        // 6b: Show Correct Placement
         correctText.innerText = correctCatObj.label;
-
-        // 6c: Explain Why
         expl.innerText = item.explanation;
 
         overlay.classList.add('active');
@@ -528,7 +706,7 @@ const app = {
         document.getElementById('feedback-overlay').classList.remove('active');
         this.index++;
         
-        if (this.index < nudgeData.items.length) {
+        if (this.index < this.currentNudge.items.length) {
             this.renderCard();
         } else {
             this.endGame();
@@ -536,12 +714,21 @@ const app = {
     },
 
     endGame: function() {
-        document.getElementById('screen-game').classList.add('hidden');
-        document.getElementById('screen-summary').classList.remove('hidden');
-        document.getElementById('situation-text').innerText = "Session Complete";
-        
-        // Step 7: Show Takeaway
-        document.getElementById('final-takeaway').innerText = nudgeData.takeaway;
+        this.showScreen('screen-summary');
+        document.getElementById('header-label').innerText = 'Session Complete';
+        document.getElementById('situation-text').innerText = 'Reflection';
+        document.getElementById('final-takeaway').innerText = this.currentNudge.takeaway;
+    },
+
+    showMenu: function() {
+        this.renderMenu();
+    },
+
+    showScreen: function(id) {
+        ['screen-menu', 'screen-intro', 'screen-game', 'screen-summary'].forEach(s => {
+            document.getElementById(s).classList.add('hidden');
+        });
+        document.getElementById(id).classList.remove('hidden');
     }
 };
 
