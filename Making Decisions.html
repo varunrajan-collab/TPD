@@ -196,6 +196,13 @@
             border-top: 1px solid var(--border-default);
         }
 
+        .retry-prompt {
+            margin-top: 20px;
+            font-weight: 600;
+            color: var(--accent-color);
+            font-size: 0.95rem;
+        }
+
         /* Primary Action Button */
         .primary-btn {
             background-color: var(--accent-color);
@@ -255,7 +262,8 @@
         competency: "Clearly communicates the lesson’s objectives and key concepts at the outset.",
         
         level1: {
-            scenario: "You are about to begin a new lesson. Students are settling down, and you want to start the class effectively.",
+            scenario: "You are standing at the front of the room. The bell has just rung, and students are settling into their seats, chatting and pulling out materials. You need to transition them into learning mode effectively.",
+            question: "What is your immediate opening move to align with the competency?",
             options: [
                 {
                     id: "A",
@@ -285,7 +293,8 @@
         },
 
         level2: {
-            scenario: "Midway through the explanation, a student raises their hand and asks: 'Why do we need to learn this? It seems useless.'",
+            scenario: "Midway through the explanation, a student raises their hand and asks: 'Why do we need to learn this? It seems useless.' Other students stop taking notes to listen.",
+            question: "How do you respond to this interruption?",
             options: [
                 {
                     id: "A",
@@ -301,7 +310,7 @@
                     text: "Tell them it will be on the final exam so they need to know it.",
                     type: "misaligned",
                     consequence: "The student nods but looks bored. Motivation shifts from learning to fear of failure.",
-                    explanation: "Using grades as justification bypasses the intrinsic value of the objective. Right course: Explain the practical value of the skill.",
+                    explanation: "Using grades as justification bypasses the intrinsic value of the objective. It signals that the content itself isn't valuable, only the grade is.",
                     rightCourse: "The teacher should have connected the concept to a real-world problem or student interest."
                 },
                 {
@@ -310,7 +319,7 @@
                     text: "Ask them to hold all questions until the end of the lecture.",
                     type: "confusing",
                     consequence: "The student disengages. The 'teachable moment' is lost.",
-                    explanation: "While this protects timeline, it signals that the lesson plan is more important than student understanding. Right course: Address the curiosity briefly.",
+                    explanation: "While this protects the timeline, it signals that the lesson plan is more important than student understanding.",
                     rightCourse: "The teacher should have used the question to reinforce the lesson's relevance immediately."
                 }
             ]
@@ -348,11 +357,6 @@
         currentStep = 1;
         setProgress(30);
         
-        // Shuffle for randomness if desired, or keep fixed A/B/C
-        // Prompt says "Present exactly three options, labeled clearly".
-        // We will keep order static to ensure Option A/B/C labels make sense, 
-        // or we can shuffle and re-label. Let's keep data order but render cleanly.
-        
         const optionsHTML = data.level1.options.map(opt => `
             <button class="option-btn" onclick="handleDecision('level1', '${opt.type}', '${opt.id}')">
                 <span class="option-prefix">${opt.label}:</span> ${opt.text}
@@ -365,7 +369,7 @@
                     <span class="scenario-label">Scenario 1</span>
                     ${data.level1.scenario}
                 </div>
-                <p><strong>Select the best action:</strong></p>
+                <p><strong>${data.level1.question}</strong></p>
                 <div class="options-list">
                     ${optionsHTML}
                 </div>
@@ -386,8 +390,8 @@
                 renderFinalSuccess(selectedOpt);
             }
         } else {
-            // FAILURE LOGIC (Terminal)
-            renderFailure(selectedOpt);
+            // FAILURE/RETRY LOGIC
+            renderFailure(selectedOpt, level);
         }
     };
 
@@ -422,7 +426,7 @@
                     <span class="scenario-label">Scenario 2</span>
                     ${data.level2.scenario}
                 </div>
-                <p><strong>Select the best action:</strong></p>
+                <p><strong>${data.level2.question}</strong></p>
                 <div class="options-list">
                     ${optionsHTML}
                 </div>
@@ -430,14 +434,12 @@
         `;
     }
 
-    // STEP 4 & 7: FAILURE ENDING
-    function renderFailure(option) {
-        setProgress(100);
+    // FAILURE/RETRY LOGIC
+    function renderFailure(option, level) {
+        setProgress(currentStep === 1 ? 30 : 80); // Keep progress static or revert slightly
         
-        // If Level 2 failure, we add the "Right Course" per Step 7 instruction
-        const rightCourseHTML = option.rightCourse 
-            ? `<div style="margin-top:16px; color:var(--text-primary); font-weight:500;">Better Approach: ${option.rightCourse}</div>` 
-            : '';
+        // Determine which function to call to retry
+        const retryFunction = level === 'level1' ? 'renderLevel1()' : 'renderLevel2()';
 
         contentDiv.innerHTML = `
             <div class="feedback-section">
@@ -448,10 +450,13 @@
                     <div class="analysis-block">
                         <div class="feedback-title">Analysis</div>
                         <div class="feedback-text">${option.explanation}</div>
-                        ${rightCourseHTML}
+                    </div>
+
+                    <div class="retry-prompt">
+                        Now that you know the impact, would you like to try again?
                     </div>
                 </div>
-                <button class="restart-btn" onclick="renderCompetency()">Restart Simulation</button>
+                <button class="primary-btn" onclick="${retryFunction}">Try Again</button>
             </div>
         `;
     }
@@ -470,7 +475,7 @@
                         <div class="feedback-text">${data.finalTakeaway}</div>
                     </div>
                 </div>
-                <button class="restart-btn" onclick="renderCompetency()">Run Again</button>
+                <button class="restart-btn" onclick="renderCompetency()">Run Simulation Again</button>
             </div>
         `;
     }
