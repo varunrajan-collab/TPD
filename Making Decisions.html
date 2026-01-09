@@ -3,36 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Classroom Simulation: Teacher Decisions</title>
+    <title>Competency Simulation</title>
     <style>
         :root {
-            /* NEW AESTHETIC: Warm, Modern, Editorial */
+            /* NEW AESTHETIC: Airy, Clinical, Professional */
             
             /* Backgrounds */
-            --bg-body: #FAF9F6;       /* Warm Off-White (Paper) */
+            --bg-body: #F0F9FF;       /* Very Pale Blue */
             --bg-card: #FFFFFF;
-            --bg-accent-subtle: #F3E8FF; /* Very light Violet */
+            --bg-neutral: #F8FAFC;    /* Slate 50 */
             
             /* Text Colors */
-            --text-header: #111827;   /* Almost Black */
-            --text-body: #4B5563;     /* Warm Gray */
-            --text-sub: #9CA3AF;      /* Light Gray */
+            --text-primary: #0F172A;  /* Slate 900 */
+            --text-secondary: #475569;/* Slate 600 */
+            --text-muted: #94A3B8;    /* Slate 400 */
             
             /* Accents */
-            --primary: #8B5CF6;       /* Soft Violet */
-            --primary-hover: #7C3AED;
-            --primary-text: #FFFFFF;
+            --accent-color: #0EA5E9;  /* Sky 500 */
+            --accent-hover: #0284C7;  /* Sky 600 */
+            --accent-light: #E0F2FE;  /* Sky 100 */
             
-            /* Status Colors (Pastel/Light) */
-            --impact-bg: #FFF7ED;     /* Light Orange/Peach for impact */
-            --impact-border: #FFEDD5;
+            /* Status Indicators (Subtle borders) */
+            --border-default: #E2E8F0;
+            --border-focus: #0EA5E9;
             
-            /* Structure */
-            --radius-card: 24px;
-            --radius-btn: 50px;       /* Pill shape */
-            --shadow-card: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
-            --font-serif: Georgia, 'Times New Roman', Times, serif;
-            --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+            /* Spacing & Structure */
+            --radius-card: 12px;      /* Moderately rounded */
+            --radius-btn: 6px;        /* Standard button */
+            --shadow-soft: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            
+            --font-main: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
 
         * {
@@ -40,429 +40,443 @@
         }
 
         body {
-            font-family: var(--font-sans);
+            font-family: var(--font-main);
             background-color: var(--bg-body);
-            color: var(--text-body);
+            color: var(--text-primary);
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
             margin: 0;
             padding: 20px;
-            line-height: 1.7;
+            line-height: 1.6;
         }
 
         #app-container {
             background: var(--bg-card);
             width: 100%;
-            max-width: 680px;
+            max-width: 620px;
             border-radius: var(--radius-card);
-            box-shadow: var(--shadow-card);
+            box-shadow: var(--shadow-soft);
             overflow: hidden;
-            position: relative;
+            border: 1px solid var(--border-default);
+            display: flex;
+            flex-direction: column;
+            min-height: 400px;
         }
 
-        /* Decorative Top Line */
-        #app-container::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 6px;
-            background: linear-gradient(90deg, var(--primary), #C084FC);
+        /* Top Bar */
+        .status-bar {
+            height: 4px;
+            background: var(--bg-neutral);
+            width: 100%;
+        }
+        
+        .status-fill {
+            height: 100%;
+            background: var(--accent-color);
+            width: 0%;
+            transition: width 0.5s ease;
         }
 
-        /* Header Area */
-        .simulation-header {
-            padding: 40px 40px 20px 40px;
-            text-align: center;
-        }
-
-        .competency-label {
-            font-family: var(--font-sans);
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            color: var(--primary);
-            font-weight: 700;
-            display: block;
-            margin-bottom: 12px;
-        }
-
-        .competency-title {
-            font-family: var(--font-serif);
-            font-size: 1.5rem;
-            font-weight: 500;
-            color: var(--text-header);
-            margin: 0;
-            line-height: 1.3;
-        }
-
-        /* Main Content Area */
+        /* Content Area */
         .content-area {
-            padding: 20px 40px 40px 40px;
-            animation: fadeIn 0.6s ease-out;
+            padding: 40px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        /* Typography */
+        h1 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: 0 0 16px 0;
+            line-height: 1.4;
+        }
+
+        h2 {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--text-secondary);
+            margin: 0 0 24px 0;
+            font-weight: 600;
+        }
+
+        p {
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+            font-size: 1rem;
         }
 
         /* Scenario Box */
         .scenario-box {
+            background: var(--bg-neutral);
+            border-left: 3px solid var(--accent-color);
+            padding: 24px;
             margin-bottom: 32px;
-            text-align: center;
+            border-radius: 0 var(--radius-btn) var(--radius-btn) 0;
         }
-
-        .scenario-text {
-            font-size: 1.1rem;
-            color: var(--text-header);
-            font-weight: 400;
+        
+        .scenario-label {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--accent-color);
+            margin-bottom: 8px;
+            text-transform: uppercase;
         }
 
         /* Options */
-        .options-group {
+        .options-list {
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 12px;
         }
 
-        .option-btn {
-            background: #fff;
-            border: 2px solid #F3F4F6;
-            padding: 20px 28px;
+        button.option-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--border-default);
+            padding: 16px 20px;
+            border-radius: var(--radius-btn);
             text-align: left;
-            border-radius: var(--radius-card); /* Softer corners */
             cursor: pointer;
-            font-family: var(--font-sans);
-            font-size: 1rem;
-            color: var(--text-body);
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.2s ease;
+            font-size: 0.95rem;
+            color: var(--text-primary);
+            font-family: var(--font-main);
             position: relative;
         }
 
-        .option-btn:hover {
-            border-color: var(--primary);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.1);
+        button.option-btn:hover {
+            border-color: var(--accent-color);
+            background: var(--bg-neutral);
         }
 
-        .option-label {
-            font-weight: 700;
-            color: var(--primary);
+        button.option-btn:focus {
+            outline: 2px solid var(--accent-light);
+            border-color: var(--accent-color);
+        }
+
+        .option-prefix {
+            font-weight: 600;
+            color: var(--text-secondary);
             margin-right: 8px;
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
         }
 
-        /* Feedback / Reflection Screen */
-        .impact-section {
-            margin-bottom: 32px;
+        /* Feedback Section */
+        .feedback-section {
+            animation: fadeIn 0.4s ease-out;
         }
 
-        .impact-title {
-            font-family: var(--font-sans);
-            font-size: 0.8rem;
-            font-weight: 700;
-            color: var(--text-sub);
-            margin-bottom: 12px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .impact-card {
-            background: var(--impact-bg);
-            border: 1px solid var(--impact-border);
-            padding: 24px;
-            border-radius: 16px;
+        .feedback-card {
+            padding: 0;
             margin-bottom: 24px;
         }
         
-        /* Success specific styling override */
-        .impact-card.success {
-            background: var(--bg-accent-subtle);
-            border-color: #E9D5FF;
-        }
-
-        .impact-card ul {
-            margin: 0;
-            padding-left: 20px;
-            color: var(--text-header);
-        }
-        
-        .impact-card li {
+        .feedback-title {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--text-primary);
             margin-bottom: 8px;
         }
 
-        .analysis-text {
-            color: var(--text-body);
+        .feedback-text {
+            color: var(--text-secondary);
             font-size: 1rem;
-            font-style: italic;
-            border-top: 1px solid rgba(0,0,0,0.05);
-            padding-top: 16px;
-            margin-top: 16px;
+            line-height: 1.6;
+        }
+        
+        .analysis-block {
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border-default);
         }
 
-        /* Buttons */
-        .action-btn {
-            background-color: var(--primary);
-            color: var(--primary-text);
+        /* Primary Action Button */
+        .primary-btn {
+            background-color: var(--accent-color);
+            color: white;
             border: none;
-            padding: 16px 36px;
+            padding: 14px 28px;
             border-radius: var(--radius-btn);
-            font-size: 1rem;
-            cursor: pointer;
+            font-size: 0.95rem;
             font-weight: 600;
-            letter-spacing: 0.5px;
-            display: block;
-            width: 100%;
+            cursor: pointer;
             transition: background 0.2s;
-            box-shadow: 0 4px 6px -1px rgba(139, 92, 246, 0.3);
+            align-self: flex-start;
+            margin-top: 20px;
         }
 
-        .action-btn:hover {
-            background-color: var(--primary-hover);
-        }
-        
-        .action-btn.secondary {
-            background-color: transparent;
-            border: 2px solid var(--primary);
-            color: var(--primary);
-            box-shadow: none;
-        }
-        
-        .action-btn.secondary:hover {
-            background-color: var(--bg-accent-subtle);
+        .primary-btn:hover {
+            background-color: var(--accent-hover);
         }
 
-        /* Fade Animation */
+        .restart-btn {
+            background: transparent;
+            border: 1px solid var(--border-default);
+            color: var(--text-secondary);
+            padding: 12px 24px;
+            border-radius: var(--radius-btn);
+            font-size: 0.9rem;
+            cursor: pointer;
+            margin-top: 32px;
+        }
+
+        .restart-btn:hover {
+            border-color: var(--text-primary);
+            color: var(--text-primary);
+        }
+
+        /* Utility */
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
+            from { opacity: 0; transform: translateY(8px); }
             to { opacity: 1; transform: translateY(0); }
         }
-
     </style>
 </head>
 <body>
 
 <div id="app-container">
-    <div class="simulation-header">
-        <span class="competency-label">Competency Focus</span>
-        <h1 class="competency-title">Clearly communicates lesson objectives and key concepts at the outset.</h1>
+    <div class="status-bar">
+        <div class="status-fill" id="progress"></div>
     </div>
-    
     <div id="content" class="content-area">
-        <!-- Dynamic content will be injected here -->
+        <!-- Dynamic Content -->
     </div>
 </div>
 
 <script>
-    // --- SIMULATION CONTENT ---
-    
-    const simulationData = {
-        scenarios: [
-            // SCENARIO 1
-            {
-                id: 1,
-                context: "You are about to begin a new lesson. Students are settling down, and you want to start the class effectively.",
-                options: [
-                    {
-                        label: "Option A",
-                        text: "Review the previous day's homework immediately to ensure everyone did it.",
-                        type: "confusing", 
-                        reactions: [
-                            "Students switch to 'task mode' but are unsure what the NEW learning goal is.",
-                            "Engagement is limited to checking boxes rather than curiosity."
-                        ],
-                        impact: "The start feels disjointed. Time is spent on past compliance rather than future learning.",
-                        analysis: "This choice prioritizes administrative tasks over instructional clarity. It does not set a clear objective for the current lesson."
-                    },
-                    {
-                        label: "Option B",
-                        text: "State clearly what students will be able to do by the end of the class and why it matters.",
-                        type: "aligned",
-                        reactions: [
-                            "Students understand the goal of the lesson.",
-                            "They begin making connections to what they already know."
-                        ],
-                        impact: "The lesson starts with focus. Students are mentally prepared for the new content."
-                    },
-                    {
-                        label: "Option C",
-                        text: "Tell the students to open page 45 and start reading silently.",
-                        type: "misaligned",
-                        reactions: [
-                            "Students comply mechanically, but some are visibly disengaged.",
-                            "Students do not understand the purpose of the reading."
-                        ],
-                        impact: "Low engagement. You will likely have to interrupt later to explain what they should be looking for.",
-                        analysis: "Assigning a task without context leads to passive compliance, not active learning. The objective remains unclear."
-                    }
-                ]
-            },
-            // SCENARIO 2 (Follow-up)
-            {
-                id: 2,
-                context: "Midway through the explanation, a student raises their hand and asks: 'Why do we need to learn this? It seems useless.'",
-                options: [
-                    {
-                        label: "Option A",
-                        text: "Explain a specific real-world application of the concept relevant to their lives.",
-                        type: "aligned",
-                        reactions: [
-                            "The student perks up and listens more intently.",
-                            "Other students nod, seeing the personal value."
-                        ],
-                        impact: "The disruption becomes a learning moment that reinforces the objective."
-                    },
-                    {
-                        label: "Option B",
-                        text: "Tell them it will be on the final exam so they need to know it.",
-                        type: "misaligned",
-                        reactions: [
-                            "The student nods but looks bored/resigned.",
-                            "Motivation shifts from learning to fear of failure."
-                        ],
-                        impact: "You have secured compliance, but lost genuine engagement.",
-                        analysis: "Using grades as the sole justification bypasses the opportunity to connect the objective to the student's reality."
-                    },
-                    {
-                        label: "Option C",
-                        text: "Ask them to hold all questions until the end of the lecture to maintain flow.",
-                        type: "confusing",
-                        reactions: [
-                            "The student disengages and stops taking notes.",
-                            "The class feels that curiosity is a distraction."
-                        ],
-                        impact: "A key opportunity to clarify the 'Why' of the lesson is missed.",
-                        analysis: "While this protects your timeline, it signals that the lesson plan is more important than student understanding."
-                    }
-                ]
-            }
-        ],
-        finalInsight: "Aligning your actions with clear objectives helps students stay focused, confident, and engaged throughout the lesson. Consistency builds trust in your leadership."
+    // --- DATA ---
+    const data = {
+        competency: "Clearly communicates the lesson’s objectives and key concepts at the outset.",
+        
+        level1: {
+            scenario: "You are about to begin a new lesson. Students are settling down, and you want to start the class effectively.",
+            options: [
+                {
+                    id: "A",
+                    label: "Option A",
+                    text: "Review the previous day's homework immediately to ensure everyone did it.",
+                    type: "confusing",
+                    consequence: "Students switch to 'task mode' but are unsure what the NEW learning goal is. Engagement is limited to compliance.",
+                    explanation: "This choice prioritizes administrative checks over instructional clarity. It fails to orient students toward the new learning, leading to a disjointed start."
+                },
+                {
+                    id: "B",
+                    label: "Option B",
+                    text: "State clearly what students will be able to do by the end of the class and why it matters.",
+                    type: "aligned",
+                    consequence: "Students understand the goal of the lesson and begin making connections to what they already know.",
+                    explanation: "Framing the destination helps students organize incoming information."
+                },
+                {
+                    id: "C",
+                    label: "Option C",
+                    text: "Tell the students to open page 45 and start reading silently.",
+                    type: "misaligned",
+                    consequence: "Students comply mechanically, but some are visibly disengaged or confused about the purpose.",
+                    explanation: "Assigning a task without context creates passive compliance rather than active engagement. The objective remains hidden."
+                }
+            ]
+        },
+
+        level2: {
+            scenario: "Midway through the explanation, a student raises their hand and asks: 'Why do we need to learn this? It seems useless.'",
+            options: [
+                {
+                    id: "A",
+                    label: "Option A",
+                    text: "Explain a specific real-world application of the concept relevant to their lives.",
+                    type: "aligned",
+                    consequence: "The student perks up. The class becomes more attentive as they realize this is a tool they can use.",
+                    explanation: "Connecting content to reality validates the objective."
+                },
+                {
+                    id: "B",
+                    label: "Option B",
+                    text: "Tell them it will be on the final exam so they need to know it.",
+                    type: "misaligned",
+                    consequence: "The student nods but looks bored. Motivation shifts from learning to fear of failure.",
+                    explanation: "Using grades as justification bypasses the intrinsic value of the objective. Right course: Explain the practical value of the skill.",
+                    rightCourse: "The teacher should have connected the concept to a real-world problem or student interest."
+                },
+                {
+                    id: "C",
+                    label: "Option C",
+                    text: "Ask them to hold all questions until the end of the lecture.",
+                    type: "confusing",
+                    consequence: "The student disengages. The 'teachable moment' is lost.",
+                    explanation: "While this protects timeline, it signals that the lesson plan is more important than student understanding. Right course: Address the curiosity briefly.",
+                    rightCourse: "The teacher should have used the question to reinforce the lesson's relevance immediately."
+                }
+            ]
+        },
+
+        finalTakeaway: "Clear communication of goals—and the 'why' behind them—helps students stay focused, confident, and engaged throughout the lesson."
     };
 
-    // --- STATE MANAGEMENT ---
-    
-    let currentScenarioIndex = 0;
-    let isRetryState = false; // Tracks if we are currently re-trying a scenario
-
+    // --- STATE ---
     const contentDiv = document.getElementById('content');
+    const progressBar = document.getElementById('progress');
+    let currentStep = 0; // 0: Competency, 1: Lvl1, 2: Lvl2, 3: End
 
-    // --- RENDER FUNCTIONS ---
+    // --- RENDERERS ---
 
-    // 1. Render Scenario (Input Phase)
-    function renderScenario() {
-        const scenario = simulationData.scenarios[currentScenarioIndex];
+    function setProgress(pct) {
+        progressBar.style.width = `${pct}%`;
+    }
+
+    // STEP 1: COMPETENCY
+    function renderCompetency() {
+        currentStep = 0;
+        setProgress(10);
+        contentDiv.innerHTML = `
+            <div style="animation: fadeIn 0.5s ease-out;">
+                <h2>Competency Focus</h2>
+                <h1>${data.competency}</h1>
+                <button class="primary-btn" onclick="renderLevel1()">Begin Simulation</button>
+            </div>
+        `;
+    }
+
+    // STEP 2 & 3: LEVEL 1 SCENARIO
+    function renderLevel1() {
+        currentStep = 1;
+        setProgress(30);
         
-        // If it's a retry, we add a specific header
-        const retryHeader = isRetryState 
-            ? `<p style="color: var(--primary); font-weight:600; margin-bottom:16px;">Given the previous outcome, consider your approach:</p>` 
-            : `<p class="scenario-text"><strong>Scenario:</strong> ${scenario.context}</p>`;
-
-        const optionsHTML = scenario.options.map((opt, index) => `
-            <button class="option-btn" onclick="handleDecision(${index})">
-                <span class="option-label">${opt.label}</span> ${opt.text}
+        // Shuffle for randomness if desired, or keep fixed A/B/C
+        // Prompt says "Present exactly three options, labeled clearly".
+        // We will keep order static to ensure Option A/B/C labels make sense, 
+        // or we can shuffle and re-label. Let's keep data order but render cleanly.
+        
+        const optionsHTML = data.level1.options.map(opt => `
+            <button class="option-btn" onclick="handleDecision('level1', '${opt.type}', '${opt.id}')">
+                <span class="option-prefix">${opt.label}:</span> ${opt.text}
             </button>
         `).join('');
 
         contentDiv.innerHTML = `
-            <div class="scenario-box">
-                ${retryHeader}
-                ${isRetryState ? '' : ''}
-            </div>
-            
-            <div class="options-group">
-                ${optionsHTML}
+            <div style="animation: fadeIn 0.5s ease-out;">
+                <div class="scenario-box">
+                    <span class="scenario-label">Scenario 1</span>
+                    ${data.level1.scenario}
+                </div>
+                <p><strong>Select the best action:</strong></p>
+                <div class="options-list">
+                    ${optionsHTML}
+                </div>
             </div>
         `;
     }
 
-    // 2. Handle Decision Logic
-    window.handleDecision = function(optionIndex) {
-        const scenario = simulationData.scenarios[currentScenarioIndex];
-        const selectedOption = scenario.options[optionIndex];
+    // STEP 4, 5, 6: DECISION LOGIC
+    window.handleDecision = function(level, type, optId) {
+        const levelData = data[level];
+        const selectedOpt = levelData.options.find(o => o.id === optId);
 
-        if (selectedOption.type === 'aligned') {
-            renderAlignedOutcome(selectedOption);
+        if (type === 'aligned') {
+            // SUCCESS LOGIC
+            if (level === 'level1') {
+                renderLvl1Success(selectedOpt);
+            } else {
+                renderFinalSuccess(selectedOpt);
+            }
         } else {
-            renderMisalignedOutcome(selectedOption);
+            // FAILURE LOGIC (Terminal)
+            renderFailure(selectedOpt);
         }
     };
 
-    // 3. Render Misaligned Outcome (Reflection Phase)
-    function renderMisalignedOutcome(option) {
-        // Construct the consequences list
-        const reactionList = option.reactions.map(r => `<li>${r}</li>`).join('');
-
+    // STEP 5: ALIGNED RESPONSE (LEVEL 1)
+    function renderLvl1Success(option) {
+        setProgress(60);
         contentDiv.innerHTML = `
-            <div class="impact-section">
-                <div class="impact-title">Immediate Classroom Consequence</div>
-                <div class="impact-card">
-                    <ul>${reactionList}</ul>
-                    <div style="margin-top:16px;"><strong>Instructional Impact:</strong> ${option.impact}</div>
+            <div class="feedback-section">
+                <div class="feedback-card">
+                    <div class="feedback-title">Outcome</div>
+                    <div class="feedback-text">${option.consequence}</div>
                 </div>
-                
-                <div class="impact-title">Analysis</div>
-                <div class="impact-card" style="background: #F9FAFB; border-color: #E5E7EB;">
-                    <p style="margin:0; color: var(--text-body);">${option.analysis}</p>
-                </div>
+                <button class="primary-btn" onclick="renderLevel2()">Continue to Next Situation</button>
             </div>
-
-            <button class="action-btn secondary" onclick="triggerRetry()">Reflect and Retry</button>
         `;
     }
 
-    // 4. Trigger Retry
-    window.triggerRetry = function() {
-        isRetryState = true;
-        renderScenario(); // Re-render the same scenario
-    };
-
-    // 5. Render Aligned Outcome (Success Phase)
-    function renderAlignedOutcome(option) {
-        const reactionList = option.reactions.map(r => `<li>${r}</li>`).join('');
-
-        const isLastScenario = currentScenarioIndex >= simulationData.scenarios.length - 1;
-        const buttonText = isLastScenario ? "Complete Simulation" : "Continue to Next Scenario";
-        const buttonAction = isLastScenario ? "renderFinal()" : "nextScenario()";
+    // STEP 6: FOLLOW UP SCENARIO
+    function renderLevel2() {
+        currentStep = 2;
+        setProgress(80);
+        
+        const optionsHTML = data.level2.options.map(opt => `
+            <button class="option-btn" onclick="handleDecision('level2', '${opt.type}', '${opt.id}')">
+                <span class="option-prefix">${opt.label}:</span> ${opt.text}
+            </button>
+        `).join('');
 
         contentDiv.innerHTML = `
-            <div class="impact-section">
-                <div class="impact-title" style="color: var(--primary);">Outcomes</div>
-                <div class="impact-card success">
-                    <p><strong>Classroom Response:</strong></p>
-                    <ul>${reactionList}</ul>
-                    <p style="margin-top:12px;">${option.impact}</p>
+            <div style="animation: fadeIn 0.5s ease-out;">
+                <div class="scenario-box">
+                    <span class="scenario-label">Scenario 2</span>
+                    ${data.level2.scenario}
+                </div>
+                <p><strong>Select the best action:</strong></p>
+                <div class="options-list">
+                    ${optionsHTML}
                 </div>
             </div>
-
-            <button class="action-btn" onclick="${buttonAction}">${buttonText}</button>
         `;
     }
 
-    // 6. Move to Next Scenario
-    window.nextScenario = function() {
-        currentScenarioIndex++;
-        isRetryState = false; // Reset retry state for new level
-        renderScenario();
-    };
+    // STEP 4 & 7: FAILURE ENDING
+    function renderFailure(option) {
+        setProgress(100);
+        
+        // If Level 2 failure, we add the "Right Course" per Step 7 instruction
+        const rightCourseHTML = option.rightCourse 
+            ? `<div style="margin-top:16px; color:var(--text-primary); font-weight:500;">Better Approach: ${option.rightCourse}</div>` 
+            : '';
 
-    // 7. Render Final Insight
-    window.renderFinal = function() {
         contentDiv.innerHTML = `
-            <div style="text-align: center; padding: 20px 0;">
-                <h2 style="font-family: var(--font-serif); color: var(--text-header); margin-bottom: 24px;">Simulation Complete</h2>
-                <div style="background: var(--bg-accent-subtle); padding: 32px; border-radius: var(--radius-card); text-align: left;">
-                    <strong style="display:block; margin-bottom:12px; color: var(--primary); text-transform:uppercase; letter-spacing:1px; font-size:0.85rem;">Professional Insight</strong>
-                    <span style="font-size:1.1rem; color: var(--text-header);">${simulationData.finalInsight}</span>
+            <div class="feedback-section">
+                <div class="feedback-card">
+                    <div class="feedback-title">Classroom Consequence</div>
+                    <div class="feedback-text">${option.consequence}</div>
+                    
+                    <div class="analysis-block">
+                        <div class="feedback-title">Analysis</div>
+                        <div class="feedback-text">${option.explanation}</div>
+                        ${rightCourseHTML}
+                    </div>
                 </div>
-                <button class="action-btn secondary" style="margin-top: 30px;" onclick="location.reload()">Restart Simulation</button>
+                <button class="restart-btn" onclick="renderCompetency()">Restart Simulation</button>
             </div>
         `;
-    };
+    }
 
-    // Initialize
-    renderScenario();
+    // STEP 7: SUCCESS ENDING
+    function renderFinalSuccess(option) {
+        setProgress(100);
+        contentDiv.innerHTML = `
+            <div class="feedback-section">
+                <div class="feedback-card">
+                    <div class="feedback-title">Outcome</div>
+                    <div class="feedback-text">${option.consequence}</div>
+                    
+                    <div class="analysis-block">
+                        <div class="feedback-title">Professional Takeaway</div>
+                        <div class="feedback-text">${data.finalTakeaway}</div>
+                    </div>
+                </div>
+                <button class="restart-btn" onclick="renderCompetency()">Run Again</button>
+            </div>
+        `;
+    }
+
+    // INITIALIZE
+    renderCompetency();
 
 </script>
 
