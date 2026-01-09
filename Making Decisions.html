@@ -55,14 +55,14 @@
         #app-container {
             background: var(--bg-card);
             width: 100%;
-            max-width: 620px;
+            max-width: 650px;
             border-radius: var(--radius-card);
             box-shadow: var(--shadow-soft);
             overflow: hidden;
             border: 1px solid var(--border-default);
             display: flex;
             flex-direction: column;
-            min-height: 400px;
+            min-height: 500px;
         }
 
         /* Top Bar */
@@ -110,6 +110,24 @@
             color: var(--text-secondary);
             margin-bottom: 24px;
             font-size: 1rem;
+        }
+
+        /* Selection Dropdown */
+        select.competency-select {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 24px;
+            border: 1px solid var(--border-default);
+            border-radius: var(--radius-btn);
+            background-color: var(--bg-neutral);
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            font-family: var(--font-main);
+        }
+
+        select.competency-select:focus {
+            outline: 2px solid var(--accent-light);
+            border-color: var(--accent-color);
         }
 
         /* Scenario Box */
@@ -257,81 +275,245 @@
 </div>
 
 <script>
-    // --- DATA ---
-    const data = {
-        competency: "Clearly communicates the lesson’s objectives and key concepts at the outset.",
-        
-        level1: {
-            scenario: "You are standing at the front of the room. The bell has just rung, and students are settling into their seats, chatting and pulling out materials. You need to transition them into learning mode effectively.",
-            question: "How do you begin the lesson to ensure students are focused and clear on the goal?",
-            options: [
-                {
-                    id: "A",
-                    label: "Option A",
-                    text: "Review the previous day's homework immediately to ensure everyone did it.",
-                    type: "confusing",
-                    consequence: "Students switch to 'task mode' but are unsure what the NEW learning goal is. Engagement is limited to compliance.",
-                    explanation: "This choice prioritizes administrative checks over instructional clarity. It fails to orient students toward the new learning, leading to a disjointed start."
-                },
-                {
-                    id: "B",
-                    label: "Option B",
-                    text: "Address the class and state the specific learning objective, explaining what they will be able to do by the end of the period and why it is relevant.",
-                    type: "aligned",
-                    consequence: "The shift in energy is immediate. By explicitly stating the learning objective and its relevance, you have given students a 'hook.' They understand why they are here today. This clarity reduces low-level disruption because students aren't waiting to figure out what's happening—they are already oriented toward the goal.",
-                    explanation: "Framing the destination helps students organize incoming information."
-                },
-                {
-                    id: "C",
-                    label: "Option C",
-                    text: "Tell the students to open page 45 and start reading silently.",
-                    type: "misaligned",
-                    consequence: "Students comply mechanically, but some are visibly disengaged or confused about the purpose.",
-                    explanation: "Assigning a task without context creates passive compliance rather than active engagement. The objective remains hidden."
-                }
-            ]
+    // --- COMPETENCIES DATABASE ---
+    const competencies = [
+        {
+            id: 0,
+            title: "Clearly communicates the lesson’s objectives and key concepts at the outset",
+            level1: {
+                scenario: "You are standing at the front of the room. The bell has just rung, and students are settling into their seats, chatting and pulling out materials. You need to transition them into learning mode effectively.",
+                question: "How do you begin the lesson to ensure students are focused and clear on the goal?",
+                options: [
+                    { id: "A", label: "Option A", text: "Review the previous day's homework immediately to ensure everyone did it.", type: "confusing", consequence: "Students switch to 'task mode' but are unsure what the NEW learning goal is. Engagement is limited to compliance.", explanation: "Prioritizes administrative checks over instructional clarity." },
+                    { id: "B", label: "Option B", text: "State the specific learning objective, explaining what they will be able to do and why it matters.", type: "aligned", consequence: "The shift in energy is immediate. Students understand the 'hook' and why they are here today.", explanation: "Framing the destination helps students organize incoming information." },
+                    { id: "C", label: "Option C", text: "Tell the students to open page 45 and start reading silently.", type: "misaligned", consequence: "Students comply mechanically, but some are visibly disengaged or confused.", explanation: "Assigning a task without context creates passive compliance rather than active engagement." }
+                ]
+            },
+            level2: {
+                scenario: "Midway through, a student asks: 'Why do we need to learn this? It seems useless.' Other students stop to listen.",
+                question: "How do you respond to this interruption?",
+                options: [
+                    { id: "A", label: "Option A", text: "Explain a specific real-world application of the concept relevant to their lives.", type: "aligned", consequence: "The student perks up. The class becomes attentive realizing this is a useful tool.", explanation: "Connecting content to reality validates the objective." },
+                    { id: "B", label: "Option B", text: "Tell them it will be on the final exam so they need to know it.", type: "misaligned", consequence: "Motivation shifts from learning to fear of failure.", explanation: "Using grades as justification bypasses the intrinsic value of the objective." },
+                    { id: "C", label: "Option C", text: "Ask them to hold all questions until the end.", type: "confusing", consequence: "The student disengages. The 'teachable moment' is lost.", explanation: "Prioritizes timeline over understanding." }
+                ]
+            },
+            takeaway: "Clear communication of goals—and the 'why' behind them—helps students stay focused, confident, and engaged."
         },
-
-        level2: {
-            scenario: "Midway through the explanation, a student raises their hand and asks: 'Why do we need to learn this? It seems useless.' Other students stop taking notes to listen.",
-            question: "How do you respond to this interruption?",
-            options: [
-                {
-                    id: "A",
-                    label: "Option A",
-                    text: "Explain a specific real-world application of the concept relevant to their lives.",
-                    type: "aligned",
-                    consequence: "The student perks up. The class becomes more attentive as they realize this is a tool they can use.",
-                    explanation: "Connecting content to reality validates the objective."
-                },
-                {
-                    id: "B",
-                    label: "Option B",
-                    text: "Tell them it will be on the final exam so they need to know it.",
-                    type: "misaligned",
-                    consequence: "The student nods but looks bored. Motivation shifts from learning to fear of failure.",
-                    explanation: "Using grades as justification bypasses the intrinsic value of the objective. It signals that the content itself isn't valuable, only the grade is.",
-                    rightCourse: "The teacher should have connected the concept to a real-world problem or student interest."
-                },
-                {
-                    id: "C",
-                    label: "Option C",
-                    text: "Ask them to hold all questions until the end of the lecture.",
-                    type: "confusing",
-                    consequence: "The student disengages. The 'teachable moment' is lost.",
-                    explanation: "While this protects the timeline, it signals that the lesson plan is more important than student understanding.",
-                    rightCourse: "The teacher should have used the question to reinforce the lesson's relevance immediately."
-                }
-            ]
+        {
+            id: 1,
+            title: "Differentiates between concept, skill, and essential information when articulating outcomes",
+            level1: {
+                scenario: "You are planning a unit on 'Maps'. You want to ensure students understand the core ideas, not just the mechanical tasks.",
+                question: "How do you frame your learning outcomes?",
+                options: [
+                    { id: "A", label: "Option A", text: "List every fact about maps they need to memorize.", type: "misaligned", consequence: "Students focus on rote memorization and miss the bigger picture.", explanation: "This treats all information as equally important, cluttering the learning path." },
+                    { id: "B", label: "Option B", text: "Distinguish 'Understanding Scale' (Concept) from 'Measuring Distance' (Skill).", type: "aligned", consequence: "Lesson planning becomes sharper. You design different activities for the concept vs. the skill.", explanation: "Separating concept and skill allows for targeted teaching strategies." },
+                    { id: "C", label: "Option C", text: "Combine everything into a broad goal: 'Learn about maps.'", type: "confusing", consequence: "Assessment becomes difficult because the goal is too vague.", explanation: "Vague goals lead to vague instruction." }
+                ]
+            },
+            level2: {
+                scenario: "During the lesson on 'Scale', students can define it but struggle to actually calculate distance on a map.",
+                question: "What is your next instructional move?",
+                options: [
+                    { id: "A", label: "Option A", text: "Provide a hands-on practice session specifically on using a ruler and the legend.", type: "aligned", consequence: "Students bridge the gap between knowing 'what' it is and 'how' to do it.", explanation: "You identified a breakdown in 'skill' and addressed it with practice." },
+                    { id: "B", label: "Option B", text: "Re-explain the definition of scale.", type: "misaligned", consequence: "Students get bored; they already know the definition.", explanation: "Addressing a skill gap with concept explanation is ineffective." },
+                    { id: "C", label: "Option C", text: "Move on to the next chapter to keep pace.", type: "confusing", consequence: "Students leave with a permanent gap in their ability.", explanation: "Ignoring the gap ensures they will struggle later." }
+                ]
+            },
+            takeaway: "Distinguishing between concepts (knowing) and skills (doing) ensures comprehensive learning."
         },
-
-        finalTakeaway: "Clear communication of goals—and the 'why' behind them—helps students stay focused, confident, and engaged throughout the lesson."
-    };
+        {
+            id: 2,
+            title: "Identifies a central theme that can connect different subjects (Language, Math, EVS)",
+            level1: {
+                scenario: "You are planning the upcoming month's lessons. You want learning to feel connected rather than fragmented across subjects.",
+                question: "How do you organize the units?",
+                options: [
+                    { id: "A", label: "Option A", text: "Teach chapters exactly in the order of the textbook for every subject.", type: "misaligned", consequence: "Students see subjects as isolated silos with no connection.", explanation: "Strict adherence to textbook order misses opportunities for holistic learning." },
+                    { id: "B", label: "Option B", text: "Choose a theme like 'Water'. Connect EVS (Sources), Math (Volume), and Language (Stories).", type: "aligned", consequence: "Students begin seeing connections. They apply math concepts to science problems naturally.", explanation: "Thematic planning reinforces concepts across domains." },
+                    { id: "C", label: "Option C", text: "Pick a theme but only apply it to the Art class.", type: "confusing", consequence: "The theme feels like a decoration rather than a learning framework.", explanation: "Superficial integration doesn't deepen understanding." }
+                ]
+            },
+            level2: {
+                scenario: "During the 'Water' theme, students in Math class ask, 'Why are we measuring buckets? This isn't Science class.'",
+                question: "How do you leverage the theme?",
+                options: [
+                    { id: "A", label: "Option A", text: "Say: 'To see how much water a family uses, linking back to our conservation discussion.'", type: "aligned", consequence: "Students understand the practical application of the math.", explanation: "Reinforcing the theme validates the cross-curricular approach." },
+                    { id: "B", label: "Option B", text: "Say: 'Just focus on the multiplication problem.'", type: "misaligned", consequence: "The connection is broken. Math becomes abstract again.", explanation: "Dismissing the connection undermines the thematic planning." },
+                    { id: "C", label: "Option C", text: "Say: 'Science is over, now is Math time.'", type: "confusing", consequence: "Students compartmentalize their thinking.", explanation: "Rigid subject boundaries hinder transfer of learning." }
+                ]
+            },
+            takeaway: "Thematic planning creates a cohesive learning experience where subjects reinforce each other."
+        },
+        {
+            id: 3,
+            title: "Identifies relevant community resources to enrich classroom activities",
+            level1: {
+                scenario: "You are teaching a unit on 'Our Helpers' (community workers). You want to move beyond just reading the textbook descriptions.",
+                question: "What resource do you bring into the lesson?",
+                options: [
+                    { id: "A", label: "Option A", text: "Invite a local nurse or postman to speak to the class.", type: "aligned", consequence: "Students are mesmerized. They ask real questions and gain respect for the profession.", explanation: "Human resources bring abstract concepts to life." },
+                    { id: "B", label: "Option B", text: "Read the chapter aloud to the class twice.", type: "misaligned", consequence: "Engagement is low. Learning remains theoretical.", explanation: "Repetition of text does not equal enrichment." },
+                    { id: "C", label: "Option C", text: "Show a video of a postman in a foreign country.", type: "confusing", consequence: "Students are interested but disconnect it from their own reality.", explanation: "Contextual relevance is key for community resources." }
+                ]
+            },
+            level2: {
+                scenario: "The guest speaker (the nurse) arrives, but is nervous and doesn't know what to say to the kids.",
+                question: "How do you facilitate?",
+                options: [
+                    { id: "A", label: "Option A", text: "Have student-prepared questions ready to guide the conversation.", type: "aligned", consequence: "The session flows smoothly. Students feel ownership of the interview.", explanation: "Preparation scaffolds the interaction for both the guest and students." },
+                    { id: "B", label: "Option B", text: "Sit back and hope the kids ask something.", type: "misaligned", consequence: "Awkward silence ensues. The session feels like a waste of time.", explanation: "Unstructured community interactions can fail without teacher guidance." },
+                    { id: "C", label: "Option C", text: "Take over and lecture about nursing yourself.", type: "confusing", consequence: "The guest becomes a prop. The authenticity is lost.", explanation: "The goal is to hear the community voice, not the teacher's." }
+                ]
+            },
+            takeaway: "Community resources connect the classroom to the real world, making learning tangible."
+        },
+        {
+            id: 4,
+            title: "Guides students in using textbook features (tables, headings, visuals)",
+            level1: {
+                scenario: "You are introducing a new, dense chapter in the Science textbook. Students often feel overwhelmed by the amount of text.",
+                question: "How do you start the reading process?",
+                options: [
+                    { id: "A", label: "Option A", text: "Do a 'textbook walk': discuss the headings, pictures, and captions before reading.", type: "aligned", consequence: "Students build a mental scaffold. They predict what they will learn.", explanation: "Pre-reading strategies activate prior knowledge." },
+                    { id: "B", label: "Option B", text: "Start reading paragraph 1 immediately.", type: "misaligned", consequence: "Students get lost in details without understanding the main idea.", explanation: "Diving in without structure increases cognitive load." },
+                    { id: "C", label: "Option C", text: "Tell them to ignore the pictures and focus on the bold words.", type: "confusing", consequence: "Students miss crucial visual context meant to explain the text.", explanation: "Visuals are key learning aids, not decorations." }
+                ]
+            },
+            level2: {
+                scenario: "A student is stuck on a difficult paragraph and is just staring at the page.",
+                question: "How do you guide them using the text features?",
+                options: [
+                    { id: "A", label: "Option A", text: "Ask: 'Look at the chart next to this text. What does it tell you about these numbers?'", type: "aligned", consequence: "The student makes the connection and understands the text through the visual.", explanation: "Using text features helps decode complex information." },
+                    { id: "B", label: "Option B", text: "Read it aloud to them.", type: "misaligned", consequence: "The student relies on you rather than the book.", explanation: "This solves the immediate problem but builds dependency." },
+                    { id: "C", label: "Option C", text: "Tell them to skip it.", type: "confusing", consequence: "The student learns that difficult content is optional.", explanation: "Avoidance is not a reading strategy." }
+                ]
+            },
+            takeaway: "Textbooks are tools. Teaching students how to navigate them builds independent learning skills."
+        },
+        {
+            id: 5,
+            title: "Collaborates with students to create classroom norms and routines",
+            level1: {
+                scenario: "It is the first week of school. You want the classroom to run smoothly, but currently, students are interrupting each other constantly.",
+                question: "How do you establish a rule about speaking?",
+                options: [
+                    { id: "A", label: "Option A", text: "Post a list of 'Do Not' rules on the wall immediately.", type: "misaligned", consequence: "Students feel policed. They follow rules only when you are watching.", explanation: "Imposed rules lack student buy-in." },
+                    { id: "B", label: "Option B", text: "Facilitate a discussion: 'What do we need to do so everyone can be heard?'", type: "aligned", consequence: "Students suggest 'One voice at a time'. They agree to it because they see the value.", explanation: "Co-creation fosters ownership and self-regulation." },
+                    { id: "C", label: "Option C", text: "Ignore it and hope they settle down.", type: "confusing", consequence: "Chaos continues. The loudest students dominate.", explanation: "Passive management leads to a chaotic environment." }
+                ]
+            },
+            level2: {
+                scenario: "Two weeks later, a student interrupts a peer. The class looks at you.",
+                question: "How do you enforce the norm?",
+                options: [
+                    { id: "A", label: "Option A", text: "Ask the class: 'What was our agreement about listening?'", type: "aligned", consequence: "The students self-correct. The norm is reinforced by the community.", explanation: "Referencing the shared agreement reinforces the culture." },
+                    { id: "B", label: "Option B", text: "Shout 'Quiet!'", type: "misaligned", consequence: "The behavior stops out of fear, not respect.", explanation: "Reactive yelling undermines the collaborative culture." },
+                    { id: "C", label: "Option C", text: "Let it slide this time.", type: "confusing", consequence: "Students realize the rule is inconsistent.", explanation: "Inconsistency weakens the norm." }
+                ]
+            },
+            takeaway: "When students help create the rules, they are more likely to respect and uphold them."
+        },
+        {
+            id: 6,
+            title: "Reinforces desired behaviours using proactive strategies (appreciation, recognition)",
+            level1: {
+                scenario: "The class is transitioning to group work. Most groups are noisy, but one group has started working quietly.",
+                question: "How do you address the class?",
+                options: [
+                    { id: "A", label: "Option A", text: "Loudly recognize the working group: 'I notice Group 3 has their materials out and is whispering.'", type: "aligned", consequence: "Other groups look at Group 3 and mimic their behavior to get recognition.", explanation: "Highlighting the positive models the desired behavior for others." },
+                    { id: "B", label: "Option B", text: "Shout at the noisy groups to be quiet.", type: "misaligned", consequence: "The noise drops for a second, then returns. The tone of the room becomes tense.", explanation: "Negative attention reinforces negative behavior." },
+                    { id: "C", label: "Option C", text: "Wait silently at the front for 5 minutes.", type: "confusing", consequence: "Valuable learning time is lost. Students think the delay is break time.", explanation: "Passive waiting wastes instructional time." }
+                ]
+            },
+            level2: {
+                scenario: "A student who usually misbehaves is actually sitting quietly today.",
+                question: "What is your move?",
+                options: [
+                    { id: "A", label: "Option A", text: "Privately whisper: 'I appreciate how focused you are today.'", type: "aligned", consequence: "The student smiles and works harder, feeling seen for the right reasons.", explanation: "Positive reinforcement builds a new self-image for the student." },
+                    { id: "B", label: "Option B", text: "Ignore it; they should be doing this anyway.", type: "misaligned", consequence: "The student eventually acts out to get attention.", explanation: "Ignoring improvement demotivates the student." },
+                    { id: "C", label: "Option C", text: "Announce loudly: 'Look everyone, he is finally behaving!'", type: "confusing", consequence: "The student feels embarrassed and acts out to save face.", explanation: "Backhanded compliments damage relationships." }
+                ]
+            },
+            takeaway: "Proactive recognition creates a positive cycle where students strive for success."
+        },
+        {
+            id: 7,
+            title: "Organises physical setup for accessibility and inclusion",
+            level1: {
+                scenario: "You are planning a group activity. You have a student who uses a wheelchair and several students who get distracted easily.",
+                question: "How do you arrange the room?",
+                options: [
+                    { id: "A", label: "Option A", text: "Leave desks in rows and tell students to turn around.", type: "misaligned", consequence: "Interaction is awkward. The student in the wheelchair is blocked by chairs.", explanation: "Rigid layouts hinder collaboration and inclusion." },
+                    { id: "B", label: "Option B", text: "Arrange desks in clusters with wide pathways. Place the wheelchair user in an accessible but central group.", type: "aligned", consequence: "All students participate equally. Movement is easy.", explanation: "Physical access is the first step to social inclusion." },
+                    { id: "C", label: "Option C", text: "Put the wheelchair user near the door so they can leave easily.", type: "confusing", consequence: "The student feels marginalized and excluded from the learning community.", explanation: "Segregation in the name of convenience is exclusion." }
+                ]
+            },
+            level2: {
+                scenario: "During the activity, the noise level rises, and a student with sensory sensitivity covers their ears.",
+                question: "How does the environment support them?",
+                options: [
+                    { id: "A", label: "Option A", text: "Direct them to a pre-planned 'Quiet Corner' with headphones where they can still see the work.", type: "aligned", consequence: "The student regulates themselves and returns to the group later.", explanation: "Inclusive spaces account for sensory needs." },
+                    { id: "B", label: "Option B", text: "Tell them to toughen up.", type: "misaligned", consequence: "The student has a meltdown and disrupts the class.", explanation: "Ignoring sensory needs leads to behavioral issues." },
+                    { id: "C", label: "Option C", text: "Send them out of the class.", type: "confusing", consequence: "The student misses the learning.", explanation: "Removal denies access to the curriculum." }
+                ]
+            },
+            takeaway: "The physical environment dictates who can participate. Design for the margins to include everyone."
+        },
+        {
+            id: 8,
+            title: "Creates a context/hook using questions, stories, or prompts",
+            level1: {
+                scenario: "You are starting a lesson on 'Fractions'. You want to ensure students care about the concept before teaching the math.",
+                question: "How do you introduce the topic?",
+                options: [
+                    { id: "A", label: "Option A", text: "Write '1/2 + 1/4' on the board and ask them to solve it.", type: "misaligned", consequence: "Students feel anxious. They see it as abstract work.", explanation: "Starting with abstract mechanics creates resistance." },
+                    { id: "B", label: "Option B", text: "Tell a story: 'I have one pizza and three friends. How do I make sure we all get a fair share?'", type: "aligned", consequence: "Students immediately offer solutions. They are doing math without realizing it.", explanation: "Contextualizing math makes it accessible and intuitive." },
+                    { id: "C", label: "Option C", text: "Read the definition of a numerator from the book.", type: "confusing", consequence: "Students memorize words but lack conceptual understanding.", explanation: "Definitions should follow understanding, not precede it." }
+                ]
+            },
+            level2: {
+                scenario: "A student says, 'Just cut it in four pieces.' You want to deepen the thinking.",
+                question: "How do you respond?",
+                options: [
+                    { id: "A", label: "Option A", text: "Ask: 'What if one friend isn't hungry? Does fair mean equal?'", type: "aligned", consequence: "Students debate. The thinking moves from simple division to equivalence.", explanation: "Probing questions deepen the context." },
+                    { id: "B", label: "Option B", text: "Say: 'Correct. Next page.'", type: "misaligned", consequence: "The thinking stops. The lesson becomes superficial.", explanation: "Stopping at the first right answer limits depth." },
+                    { id: "C", label: "Option C", text: "Say: 'No, look at the formula.'", type: "confusing", consequence: "Students are confused between their intuition and the rule.", explanation: "Disconnecting intuition from rules hinders understanding." }
+                ]
+            },
+            takeaway: "A good hook bridges the gap between the student's world and the curriculum."
+        },
+        {
+            id: 9,
+            title: "Sources and uses internet/digital tools to promote student-led inquiry",
+            level1: {
+                scenario: "A student asks a complex question about space that isn't in the textbook: 'What happens if you fall into a black hole?'",
+                question: "How do you use this to promote inquiry?",
+                options: [
+                    { id: "A", label: "Option A", text: "Say: 'That's not in the syllabus. Let's focus on the solar system.'", type: "misaligned", consequence: "Curiosity is crushed. Students learn that questions are distractions.", explanation: "Sticking rigidly to the syllabus kills inquiry." },
+                    { id: "B", label: "Option B", text: "Project a curated simulation or guide them to a safe search engine to find the answer.", type: "aligned", consequence: "The class is fascinated. They learn how to find information.", explanation: "Digital tools allow for just-in-time learning." },
+                    { id: "C", label: "Option C", text: "Give them a long lecture about what you think happens.", type: "confusing", consequence: "Students listen passively. They don't learn how to find answers themselves.", explanation: "Providing the answer denies the opportunity for inquiry." }
+                ]
+            },
+            level2: {
+                scenario: "Students find two different answers online. One says you stretch like spaghetti, one says you burn up.",
+                question: "How do you handle the conflicting info?",
+                options: [
+                    { id: "A", label: "Option A", text: "Ask: 'Which source looks more reliable? Who wrote these?'", type: "aligned", consequence: "Students look at the source URL. They learn digital literacy.", explanation: "Inquiry includes evaluating sources." },
+                    { id: "B", label: "Option B", text: "Pick one and say 'This is the right one.'", type: "misaligned", consequence: "Students accept authority over evidence.", explanation: "Arbitrary selection undermines critical thinking." },
+                    { id: "C", label: "Option C", text: "Say 'The internet is always wrong.'", type: "confusing", consequence: "Students lose trust in research tools.", explanation: "Blanket dismissal is not helpful." }
+                ]
+            },
+            takeaway: "Technology isn't just for delivery; it's a tool for curiosity and critical thinking."
+        }
+    ];
 
     // --- STATE ---
     const contentDiv = document.getElementById('content');
     const progressBar = document.getElementById('progress');
-    let currentStep = 0; // 0: Competency, 1: Lvl1, 2: Lvl2, 3: End
+    let currentStep = 0; // 0: Select, 1: Lvl1, 2: Lvl2, 3: End
+    let currentCompetencyIndex = 0;
 
     // --- RENDERERS ---
 
@@ -339,23 +521,42 @@
         progressBar.style.width = `${pct}%`;
     }
 
-    // STEP 1: COMPETENCY
-    function renderCompetency() {
+    // STEP 0: SELECTION SCREEN
+    function renderSelection() {
         currentStep = 0;
-        setProgress(10);
+        setProgress(5);
+        
+        const optionsHTML = competencies.map((c, index) => 
+            `<option value="${index}">${c.title}</option>`
+        ).join('');
+
         contentDiv.innerHTML = `
             <div style="animation: fadeIn 0.5s ease-out;">
-                <h2>Competency Focus</h2>
-                <h1>${data.competency}</h1>
-                <button class="primary-btn" onclick="renderLevel1()">Begin Simulation</button>
+                <h2>Welcome</h2>
+                <h1>Select a Competency to Practice</h1>
+                <p>Choose an area you would like to focus on today:</p>
+                
+                <select id="compSelect" class="competency-select">
+                    ${optionsHTML}
+                </select>
+
+                <button class="primary-btn" onclick="startSimulation()">Start Simulation</button>
             </div>
         `;
+    }
+
+    function startSimulation() {
+        const select = document.getElementById('compSelect');
+        currentCompetencyIndex = parseInt(select.value);
+        renderLevel1();
     }
 
     // STEP 2 & 3: LEVEL 1 SCENARIO
     function renderLevel1() {
         currentStep = 1;
         setProgress(30);
+        
+        const data = competencies[currentCompetencyIndex];
         
         const optionsHTML = data.level1.options.map(opt => `
             <button class="option-btn" onclick="handleDecision('level1', '${opt.type}', '${opt.id}')">
@@ -365,6 +566,8 @@
 
         contentDiv.innerHTML = `
             <div style="animation: fadeIn 0.5s ease-out;">
+                <h2>Competency Focus</h2>
+                <h1 style="font-size:1.1rem; margin-bottom:20px;">${data.title}</h1>
                 <div class="scenario-box">
                     <span class="scenario-label">Scenario 1</span>
                     ${data.level1.scenario}
@@ -379,6 +582,7 @@
 
     // STEP 4, 5, 6: DECISION LOGIC
     window.handleDecision = function(level, type, optId) {
+        const data = competencies[currentCompetencyIndex];
         const levelData = data[level];
         const selectedOpt = levelData.options.find(o => o.id === optId);
 
@@ -413,6 +617,8 @@
     function renderLevel2() {
         currentStep = 2;
         setProgress(80);
+        
+        const data = competencies[currentCompetencyIndex];
         
         const optionsHTML = data.level2.options.map(opt => `
             <button class="option-btn" onclick="handleDecision('level2', '${opt.type}', '${opt.id}')">
@@ -464,6 +670,8 @@
     // STEP 7: SUCCESS ENDING
     function renderFinalSuccess(option) {
         setProgress(100);
+        const data = competencies[currentCompetencyIndex];
+        
         contentDiv.innerHTML = `
             <div class="feedback-section">
                 <div class="feedback-card">
@@ -472,16 +680,16 @@
                     
                     <div class="analysis-block">
                         <div class="feedback-title">Professional Takeaway</div>
-                        <div class="feedback-text">${data.finalTakeaway}</div>
+                        <div class="feedback-text">${data.takeaway}</div>
                     </div>
                 </div>
-                <button class="restart-btn" onclick="renderCompetency()">Run Simulation Again</button>
+                <button class="restart-btn" onclick="renderSelection()">Choose New Competency</button>
             </div>
         `;
     }
 
     // INITIALIZE
-    renderCompetency();
+    renderSelection();
 
 </script>
 
