@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Reflective Practice Nudge</title>
+<style>
+  /* --- AESTHETIC: Morning Light --- */
+  :root {
+    --bg-color: #F9F8F4;       /* Warm paper white */
+    --card-bg: #FFFFFF;        /* Pure white */
+    --text-main: #2C3E50;      /* Soft slate */
+    --text-light: #7F8C8D;     /* Muted grey */
+    --accent: #88A096;         /* Sage Green */
+    --accent-light: #E8EFE6;   /* Pale Sage */
+    --accent-dark: #6B857B;    /* Darker Sage for hover */
+    --sand: #D4C3A3;           /* Warm Sand for partial */
+    --grey-light: #F0F2F5;     /* Light Grey for none */
+    --shadow: 0 8px 30px rgba(0,0,0,0.06);
+    --radius: 24px;
+    --transition: 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    padding: 20px;
+  }
+
+  /* Main Container */
+  .nudge-card {
+    background: var(--card-bg);
+    width: 100%;
+    max-width: 420px;
+    min-height: 500px;
+    padding: 40px 32px;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Center content vertically */
+    position: relative;
+    overflow: hidden;
+    transition: height 0.3s ease;
+  }
+
+  /* Typography */
+  h1 { 
+    font-size: 1.75rem; 
+    font-weight: 700; 
+    margin: 0 0 1rem 0; 
+    color: var(--text-main); 
+    letter-spacing: -0.03em; 
+    line-height: 1.2;
+  }
+  
+  h2 { 
+    font-size: 1.35rem; 
+    font-weight: 600; 
+    margin: 0 0 1.5rem 0; 
+    color: var(--text-main); 
+    line-height: 1.3;
+  }
+
+  p { 
+    line-height: 1.65; 
+    color: var(--text-light); 
+    margin-bottom: 2rem; 
+    font-size: 1.05rem; 
+  }
+
+  .label-sub { 
+    text-transform: uppercase; 
+    letter-spacing: 0.1em; 
+    font-size: 0.7rem; 
+    color: var(--accent); 
+    font-weight: 700; 
+    margin-bottom: 12px; 
+    display: block; 
+  }
+
+  /* Step Progress Dots (Optional visual aid) */
+  .progress-container {
+    position: absolute;
+    top: 20px;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+  }
+  .step-dot {
+    width: 6px;
+    height: 6px;
+    background: var(--grey-light);
+    border-radius: 50%;
+    transition: background 0.3s;
+  }
+  .step-dot.active { background: var(--accent); }
+
+  /* Buttons */
+  .btn-primary {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    padding: 18px;
+    background-color: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 16px;
+    font-size: 1.05rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.1s ease, background 0.2s, box-shadow 0.2s;
+    box-shadow: 0 4px 12px rgba(136, 160, 150, 0.3);
+  }
+  .btn-primary:hover { 
+    background-color: var(--accent-dark); 
+    box-shadow: 0 6px 16px rgba(136, 160, 150, 0.4);
+  }
+  .btn-primary:active { transform: scale(0.98); }
+
+  .btn-outline {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 16px 20px;
+    margin-bottom: 12px;
+    background: white;
+    border: 2px solid #F0F0F0;
+    color: var(--text-main);
+    border-radius: 16px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: left;
+  }
+  .btn-outline:hover {
+    border-color: var(--accent);
+    background-color: var(--accent-light);
+    color: var(--accent-dark);
+    transform: translateX(4px);
+  }
+  
+  /* Statement Card Styling */
+  .statement-box {
+    background: #FAFAFA;
+    padding: 24px;
+    border-radius: 16px;
+    border-left: 4px solid var(--accent);
+    margin-bottom: 24px;
+    text-align: left;
+  }
+  .statement-text {
+    font-size: 1.25rem;
+    font-weight: 500;
+    color: var(--text-main);
+    line-height: 1.4;
+    margin: 0;
+    font-style: italic;
+  }
+
+  /* Pattern Visualizer (Step 5) */
+  .pattern-wrapper {
+    background: #FFFFFF;
+    border: 1px solid #EEEEEE;
+    border-radius: 20px;
+    padding: 24px;
+    margin: 10px 0 24px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .pattern-visual { 
+    display: flex; 
+    justify-content: center; 
+    align-items: center;
+    gap: 12px; 
+    margin-top: 10px;
+  }
+  
+  .pattern-dot { 
+    width: 20px; 
+    height: 20px; 
+    border-radius: 50%; 
+    transition: 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transform: scale(0); /* start small for animation */
+    animation: popIn 0.5s forwards;
+  }
+  
+  .pattern-line {
+    height: 2px;
+    width: 20px;
+    background: #EEEEEE;
+  }
+
+  .dot-clear { background-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-light); }
+  .dot-partial { background-color: var(--sand); box-shadow: 0 0 0 4px #F5EFE6; } 
+  .dot-none { background-color: #E0E0E0; }
+
+  @keyframes popIn {
+    to { transform: scale(1); }
+  }
+
+  /* Info Box for Interpretation */
+  .info-box {
+    background: var(--accent-light);
+    padding: 24px;
+    border-radius: 16px;
+    margin-bottom: 24px;
+    text-align: left;
+    position: relative;
+  }
+  .info-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--accent-dark);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 8px;
+  }
+
+  /* Animation Utilities */
+  .fade-enter { 
+    animation: slideUpFade 0.5s var(--transition) forwards; 
+    opacity: 0;
+  }
+  
+  @keyframes slideUpFade { 
+    from { opacity: 0; transform: translateY(20px); } 
+    to { opacity: 1; transform: translateY(0); } 
+  }
+
+  .hidden { display: none; }
+  
+  /* Emoji Icon styles */
+  .emoji-icon { font-size: 2.5rem; display: block; margin-bottom: 16px; }
+
+</style>
+</head>
+<body>
+
+<div class="nudge-card" id="app">
+  <!-- Content injected by JS -->
+</div>
+
+<script>
+  /**
+   * DATA CONFIGURATION
+   * To change the content, simply edit this object.
+   */
+  const nudgeData = {
+    competency: {
+      title: "Checking for Understanding",
+      description: "This interactive helps you self-assess how this competency actually showed up in your real practice today, not just in theory."
+    },
+    anchor: {
+      title: "Anchor in reality",
+      text: "Bring to mind a specific interaction from the last 24 hours. Maybe the start of a lesson, or a moment a student got stuck.",
+      prompt: "Do not proceed until you have a specific moment in your head."
+    },
+    statements: [
+      "I asked a question that required more than a yes/no answer.",
+      "I waited at least 3 seconds for students to think before calling on someone.",
+      "I asked a student to rephrase the concept in their own words."
+    ],
+    // Logic: Keys correspond to pattern dominance
+    interpretations: {
+      high: {
+        title: "Intentional Visibility",
+        description: "This pattern reflects a practice where students are consistently pushed to verbalize their thinking.",
+        impact: "When this is consistent, students move from passive listeners to active owners of the content."
+      },
+      mixed: {
+        title: "Emerging Integration",
+        description: "This pattern suggests the competency is present, but external factors (like pacing or behavior) might be interrupting the flow.",
+        impact: "Smoothing out these gaps helps ensure that quiet or struggling students don't get left behind."
+      },
+      low: {
+        title: "Latent Potential",
+        description: "This pattern indicates that while the intent may be there, the observable actions were less visible in this specific moment.",
+        impact: "Focusing on just one of these actions next time can significantly shift the classroom dynamic."
+      }
+    },
+    closing: {
+      question: "Which aspect felt most challenging to maintain?",
+      options: [
+        "Finding the right timing",
+        "Remembering to pause",
+        "Formulating the question",
+        "Managing the silence"
+      ]
+    }
+  };
+
+  /**
+   * APP STATE
+   */
+  let currentStep = 'intro'; // intro, anchor, assessment, result, closing, end
+  let statementIndex = 0;
+  let userResponses = []; // Array of 'clear', 'partial', 'none'
+
+  const app = document.getElementById('app');
+
+  /**
+   * RENDER FUNCTIONS
+   */
+  function render() {
+    // Reset animation
+    app.innerHTML = '';
+    const container = document.createElement('div');
+    container.className = 'fade-enter';
+    
+    switch(currentStep) {
+      case 'intro':
+        renderIntro(container);
+        break;
+      case 'anchor':
+        renderAnchor(container);
+        break;
+      case 'assessment':
+        renderAssessment(container);
+        break;
+      case 'result':
+        renderResult(container);
+        break;
+      case 'closing':
+        renderClosing(container);
+        break;
+      case 'end':
+        renderEnd(container);
+        break;
+    }
+    
+    app.appendChild(container);
+  }
+
+  function renderIntro(el) {
+    el.innerHTML = `
+      <span class="label-sub">Self-Assessment Nudge</span>
+      <h1>${nudgeData.competency.title}</h1>
+      <p>${nudgeData.competency.description}</p>
+      <button class="btn-primary" onclick="goToAnchor()">Begin Reflection</button>
+    `;
+  }
+
+  function renderAnchor(el) {
+    el.innerHTML = `
+      <div class="emoji-icon">⚓️</div>
+      <h2>${nudgeData.anchor.title}</h2>
+      <p>${nudgeData.anchor.text}</p>
+      <div style="background:#FFF9E6; padding:15px; border-radius:12px; margin-bottom:24px; font-size:0.9rem; color:#856404;">
+        <strong>Note:</strong> ${nudgeData.anchor.prompt}
+      </div>
+      <button class="btn-primary" onclick="startAssessment()">I have a moment in mind</button>
+    `;
+  }
+
+  function renderAssessment(el) {
+    const currentStatement = nudgeData.statements[statementIndex];
+    const progress = statementIndex + 1;
+    const total = nudgeData.statements.length;
+
+    el.innerHTML = `
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+        <span class="label-sub">Action ${progress} of ${total}</span>
+      </div>
+      
+      <div class="statement-box">
+        <h3 class="statement-text">"${currentStatement}"</h3>
+      </div>
+      
+      <p style="margin-bottom: 1.5rem; font-size:0.95rem;">Based on the moment you chose:</p>
+
+      <button class="btn-outline" onclick="recordResponse('clear')">
+        <span style="margin-right:10px;">🟢</span> Happened clearly
+      </button>
+      <button class="btn-outline" onclick="recordResponse('partial')">
+        <span style="margin-right:10px;">🟡</span> Happened partially
+      </button>
+      <button class="btn-outline" onclick="recordResponse('none')">
+        <span style="margin-right:10px;">⚪️</span> Did not happen
+      </button>
+    `;
+  }
+
+  function renderResult(el) {
+    const resultData = calculateLogic();
+    
+    // Create visual dots
+    let visuals = userResponses.map((r, i) => {
+      let cls = r === 'clear' ? 'dot-clear' : (r === 'partial' ? 'dot-partial' : 'dot-none');
+      // Add a connecting line unless it's the last dot
+      let line = i < userResponses.length - 1 ? '<div class="pattern-line"></div>' : '';
+      // Delay animation based on index
+      let delay = i * 0.1; 
+      return `<div class="pattern-dot ${cls}" style="animation-delay: ${delay}s"></div>${line}`;
+    }).join('');
+
+    el.innerHTML = `
+      <span class="label-sub">Your Pattern</span>
+      <h2>${resultData.title}</h2>
+      
+      <div class="pattern-wrapper">
+        <div class="pattern-visual">
+          ${visuals}
+        </div>
+        <div style="margin-top:15px; font-size:0.85rem; color:var(--text-light);">
+          (Based on your 3 responses)
+        </div>
+      </div>
+
+      <p>${resultData.description}</p>
+
+      <div class="info-box">
+        <span class="info-label">Why it matters</span>
+        <span style="color:var(--text-main); font-size:0.95rem; line-height:1.5;">${resultData.impact}</span>
+      </div>
+
+      <button class="btn-primary" onclick="goToClosing()">Continue</button>
+    `;
+  }
+
+  function renderClosing(el) {
+    let optionsHtml = nudgeData.closing.options.map(opt => 
+      `<button class="btn-outline" onclick="goToEnd()">${opt}</button>`
+    ).join('');
+
+    el.innerHTML = `
+      <h2>One last thought...</h2>
+      <p>${nudgeData.closing.question}</p>
+      <div style="margin-top:20px;">
+        ${optionsHtml}
+      </div>
+    `;
+  }
+
+  function renderEnd(el) {
+    el.innerHTML = `
+      <div style="text-align:center; padding: 40px 0;">
+        <div class="emoji-icon">✨</div>
+        <h1 style="color:var(--accent);">Reflected.</h1>
+        <p>This practice isn't about perfection.<br>It's about honest awareness.</p>
+        <button class="btn-outline" style="text-align:center; justify-content:center; margin-top:30px;" onclick="restart()">Start New Reflection</button>
+      </div>
+    `;
+  }
+
+  /**
+   * LOGIC HANDLERS
+   */
+  function goToAnchor() {
+    currentStep = 'anchor';
+    render();
+  }
+
+  function startAssessment() {
+    currentStep = 'assessment';
+    statementIndex = 0;
+    userResponses = [];
+    render();
+  }
+
+  function recordResponse(type) {
+    userResponses.push(type);
+    if (statementIndex < nudgeData.statements.length - 1) {
+      statementIndex++;
+      render();
+    } else {
+      currentStep = 'result';
+      render();
+    }
+  }
+
+  function goToClosing() {
+    currentStep = 'closing';
+    render();
+  }
+
+  function goToEnd() {
+    currentStep = 'end';
+    render();
+  }
+
+  function restart() {
+    currentStep = 'intro';
+    userResponses = [];
+    statementIndex = 0;
+    render();
+  }
+
+  function calculateLogic() {
+    const clearCount = userResponses.filter(r => r === 'clear').length;
+    const noneCount = userResponses.filter(r => r === 'none').length;
+
+    // Logic Tree
+    if (clearCount === 3) return nudgeData.interpretations.high;
+    if (noneCount === 3) return nudgeData.interpretations.low;
+    
+    if (clearCount >= 2) return nudgeData.interpretations.high;
+    if (noneCount >= 2) return nudgeData.interpretations.low;
+    
+    return nudgeData.interpretations.mixed;
+  }
+
+  // Initialize
+  render();
+
+</script>
+</body>
+</html>
