@@ -90,57 +90,34 @@
             position: relative;
         }
 
-        /* --- MENU SCREEN --- */
-        .menu-list {
+        /* --- MENU SCREEN (UPDATED for Dropdown) --- */
+        .menu-wrapper {
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 20px;
         }
 
-        .menu-item {
-            background: white;
+        .nudge-select {
+            width: 100%;
+            padding: 16px;
+            font-size: 1rem;
             border: 1px solid var(--border-color);
-            padding: 20px;
             border-radius: 12px;
+            background-color: white;
+            color: var(--text-main);
+            appearance: none; /* Remove default arrow */
+            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23007CB2%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: 0.65em auto;
             cursor: pointer;
-            transition: all 0.2s ease;
-            text-align: left;
-            position: relative;
-            padding-right: 40px; /* Space for arrow */
-        }
-
-        .menu-item:hover {
-            border-color: var(--primary);
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
-        }
-
-        .menu-item::after {
-            content: "→";
-            position: absolute;
-            right: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--primary);
-            font-weight: bold;
-        }
-
-        .menu-tag {
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: var(--text-sub);
-            font-weight: 700;
-            margin-bottom: 4px;
-            display: block;
         }
         
-        .menu-title {
-            font-weight: 600;
-            color: var(--text-main);
-            font-size: 1rem;
-            line-height: 1.4;
+        .nudge-select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-light);
         }
-
 
         /* --- Intro Screen: Step 1 --- */
         .intro-wrapper {
@@ -375,8 +352,11 @@
         <!-- Screen 0: Menu -->
         <div id="screen-menu">
             <h1 class="intro-title" style="font-size: 1.5rem; margin-bottom: 24px;">Practice Library</h1>
-            <div id="menu-list" class="menu-list">
-                <!-- Menu Items Injected via JS -->
+            <div class="menu-wrapper">
+                <select id="nudge-selector" class="nudge-select">
+                    <!-- Options populated via JS -->
+                </select>
+                <button class="btn-primary" onclick="app.loadSelectedNudge()">Start Module</button>
             </div>
         </div>
 
@@ -462,12 +442,327 @@
 
 <script>
 /* NUDGE LIBRARY
-   To add more scenarios, simply paste new objects into this array.
+   Grouped by Module for the Dropdown
 */
 const nudgeLibrary = [
+    // --- MODULE 1: CURRICULUM & PLANNING ---
+    {
+        id: "curriculum_goals",
+        group: "Curriculum & Planning",
+        title: "Curricular Goals",
+        competency: "States and explains curricular goals for each subject area using National and State frameworks.",
+        intro_text: "Aligning your lessons means knowing the difference between a broad National Goal and a specific State Outcome.",
+        situation: "You are reviewing the front matter of the curriculum framework.",
+        takeaway: "National frameworks set the vision; State frameworks set the specific milestones. Know which is which.",
+        categories: [
+            { id: "c1", label: "National Goal", sub: "Broad Vision / Long-term" },
+            { id: "c2", label: "State Outcome", sub: "Specific / Grade-level" }
+        ],
+        items: [
+            { text: "\"Students will become responsible citizens of a democratic society.\"", correctCat: "c1", explanation: "This is a broad, long-term vision typical of a National Framework." },
+            { text: "\"Students will identify the 3 branches of local government by Grade 4.\"", correctCat: "c2", explanation: "This is a specific, measurable milestone for a specific grade level." },
+            { text: "\"Foster a scientific temper and spirit of inquiry.\"", correctCat: "c1", explanation: "A high-level aim for science education across all years." },
+            { text: "\"Measure length using standard units (cm, m).\"", correctCat: "c2", explanation: "A specific skill to be mastered in a specific year." }
+        ]
+    },
+    {
+        id: "concept_skill_info",
+        group: "Curriculum & Planning",
+        title: "Concept vs. Skill vs. Info",
+        competency: "Differentiates between concept, skill, and essential information when articulating learning outcomes.",
+        intro_text: "Don't teach a skill like a fact. Know what you want students to achieve.",
+        situation: "You are writing lesson objectives.",
+        takeaway: "Align your teaching method to the type of outcome.",
+        categories: [
+            { id: "c1", label: "Concept", sub: "Understanding (Why)" },
+            { id: "c2", label: "Skill", sub: "Action (How)" },
+            { id: "c3", label: "Information", sub: "Fact (What)" }
+        ],
+        items: [
+            { text: "List the capitals of all 28 states.", correctCat: "c3", explanation: "Pure recall of facts." },
+            { text: "Explain how gravity affects orbits.", correctCat: "c1", explanation: "Requires a mental model of cause-and-effect." },
+            { text: "Focus a microscope slide.", correctCat: "c2", explanation: "A physical/procedural capability." },
+            { text: "Define 'photosynthesis'.", correctCat: "c3", explanation: "Definitions are information to be recalled." }
+        ]
+    },
+    {
+        id: "measurable_outcomes",
+        group: "Curriculum & Planning",
+        title: "Measurable Outcomes",
+        competency: "Frames competencies in measurable terms using action words to show what students will do.",
+        intro_text: "Vague outcomes are hard to assess. Use action verbs.",
+        situation: "You are refining your unit plan objectives.",
+        takeaway: "If you can't see it or measure it, it's hard to teach it. Use action verbs.",
+        categories: [
+            { id: "c1", label: "Measurable", sub: "Action / Observable" },
+            { id: "c2", label: "Not Measurable", sub: "Internal / Vague" }
+        ],
+        items: [
+            { text: "\"Students will understand the water cycle.\"", correctCat: "c2", explanation: "'Understand' is internal. You can't see understanding directly." },
+            { text: "\"Students will draw and label the water cycle.\"", correctCat: "c1", explanation: "'Draw' and 'Label' are observable actions." },
+            { text: "\"Students will appreciate poetry.\"", correctCat: "c2", explanation: "Appreciation is subjective and internal." },
+            { text: "\"Students will recite a poem with expression.\"", correctCat: "c1", explanation: "'Recite' is an action you can hear and assess." }
+        ]
+    },
+    {
+        id: "thematic_connection",
+        group: "Curriculum & Planning",
+        title: "Thematic Connections",
+        competency: "Identifies a central theme that can connect different subjects and learning outcomes.",
+        intro_text: "Connecting learning across subjects builds deeper meaning.",
+        situation: "You are planning a cross-curricular week.",
+        takeaway: "Themes act as glue, holding distinct subjects together in a meaningful context.",
+        categories: [
+            { id: "c1", label: "Thematic Link", sub: "Connects Subjects" },
+            { id: "c2", label: "Isolated Topic", sub: "Single Subject Only" }
+        ],
+        items: [
+            { text: "\"How Water Sustains Life\" (Science, Social Studies, Art)", correctCat: "c1", explanation: "This theme allows for biology, geography, and cultural exploration." },
+            { text: "\"Multiplication Tables 1-10\"", correctCat: "c2", explanation: "This is a specific skill within Math, not a connecting theme." },
+            { text: "\"Festivals of Harvest\" (Music, History, Language)", correctCat: "c1", explanation: "Connects cultural history with arts and expression." },
+            { text: "\"Spelling list for Unit 4\"", correctCat: "c2", explanation: "A standalone drill task." }
+        ]
+    },
+    {
+        id: "grouping_strategies",
+        group: "Curriculum & Planning",
+        title: "Grouping Strategies",
+        competency: "Selects Whole Group, Small Group, or Individual Practice activities aligned with outcomes.",
+        intro_text: "Different outcomes require different social structures.",
+        situation: "You are deciding how students will interact during the lesson.",
+        takeaway: "Form follows function. Match the group size to the learning goal.",
+        categories: [
+            { id: "c1", label: "Whole Group", sub: "Instruction / Discussion" },
+            { id: "c2", label: "Small Group", sub: "Collaboration / Project" },
+            { id: "c3", label: "Individual", sub: "Practice / Reflection" }
+        ],
+        items: [
+            { text: "Introducing a brand new concept to everyone.", correctCat: "c1", explanation: "Efficient for delivering core instruction to all at once." },
+            { text: "Brainstorming ideas for a skit.", correctCat: "c2", explanation: "Collaboration requires interaction, best in small clusters." },
+            { text: "Writing a personal journal entry.", correctCat: "c3", explanation: "Requires quiet, personal focus." },
+            { text: "Solving a complex problem with peer support.", correctCat: "c2", explanation: "Peers can scaffold each other's thinking." }
+        ]
+    },
+
+    // --- MODULE 2: RESOURCES & MATERIALS ---
+    {
+        id: "community_resources",
+        group: "Resources & Materials",
+        title: "Community Resources",
+        competency: "Identifies relevant community resources and members to enrich classroom activities.",
+        intro_text: "The classroom isn't an island. Bring the outside world in.",
+        situation: "You are planning a unit on 'Local Economy'.",
+        takeaway: "Real-world connections make learning sticky and relevant.",
+        categories: [
+            { id: "c1", label: "Community Resource", sub: "External Expert/Site" },
+            { id: "c2", label: "Classroom Resource", sub: "Standard Material" }
+        ],
+        items: [
+            { text: "Inviting a local weaver to demonstrate patterns.", correctCat: "c1", explanation: "Leverages local expertise and living culture." },
+            { text: "Reading about weaving in the textbook.", correctCat: "c2", explanation: "Standard academic resource." },
+            { text: "Visiting the nearby post office.", correctCat: "c1", explanation: "A field visit connects civic systems to reality." },
+            { text: "Showing a video of a post office.", correctCat: "c2", explanation: "Digital resource, but not a direct community connection." }
+        ]
+    },
+    {
+        id: "textbook_usage",
+        group: "Resources & Materials",
+        title: "Textbook Usage",
+        competency: "Guides students in using textbook features and adapts activities to suit needs.",
+        intro_text: "Do students know how to 'drive' their textbook, or just read it?",
+        situation: "You are asking students to open their books.",
+        takeaway: "Teach students to navigate the tool, not just consume the text.",
+        categories: [
+            { id: "c1", label: "Navigational Skill", sub: "Using Features" },
+            { id: "c2", label: "Passive Reading", sub: "Just Text" }
+        ],
+        items: [
+            { text: "\"Find the chapter using the Table of Contents.\"", correctCat: "c1", explanation: "Teaches how to locate information." },
+            { text: "\"Read page 45 silently.\"", correctCat: "c2", explanation: "Standard consumption." },
+            { text: "\"Look at the bold headings to predict what we will learn.\"", correctCat: "c1", explanation: "Uses structural cues for comprehension." },
+            { text: "\"Use the Glossary to find the definition.\"", correctCat: "c1", explanation: "Teaches using reference tools." }
+        ]
+    },
+    {
+        id: "diverse_materials",
+        group: "Resources & Materials",
+        title: "Diverse Materials",
+        competency: "Selects organized diverse materials (videos, local tools, hands-on) aligned with outcomes.",
+        intro_text: "Moving beyond the book requires selecting the right tool for the job.",
+        situation: "You are preparing for a lesson on 'Measurement'.",
+        takeaway: "Concrete tools build concrete understanding.",
+        categories: [
+            { id: "c1", label: "Enrichment Material", sub: "Hands-on / Digital" },
+            { id: "c2", label: "Standard Text", sub: "Abstract / Print" }
+        ],
+        items: [
+            { text: "Using a tailor's tape to measure desks.", correctCat: "c1", explanation: "Real-world tool that builds physical sense of length." },
+            { text: "Completing worksheet problems on length.", correctCat: "c2", explanation: "Abstract practice." },
+            { text: "A digital simulation of balancing weights.", correctCat: "c1", explanation: "Interactive tech allows experimentation." },
+            { text: "Reading the definition of a kilogram.", correctCat: "c2", explanation: "Abstract information." }
+        ]
+    },
+
+    // --- MODULE 3: CLASSROOM CULTURE ---
+    {
+        id: "norms_routines",
+        group: "Classroom Culture",
+        title: "Norms & Routines",
+        competency: "Collaborates with students to create classroom norms and routines.",
+        intro_text: "Are rules imposed from above, or agreed upon together?",
+        situation: "It is the first week of school.",
+        takeaway: "Co-created norms lead to ownership. Imposed rules lead to mere compliance.",
+        categories: [
+            { id: "c1", label: "Co-created Norm", sub: "Shared Ownership" },
+            { id: "c2", label: "Imposed Rule", sub: "Top-down Control" }
+        ],
+        items: [
+            { text: "\"We decided together that we listen when others speak.\"", correctCat: "c1", explanation: "Language implies collective agreement ('We')." },
+            { text: "\"Do not talk while I am talking.\"", correctCat: "c2", explanation: "A command from authority." },
+            { text: "\"What should our morning routine look like?\"", correctCat: "c1", explanation: "Invites student input into the process." },
+            { text: "\"Sit down and be quiet immediately.\"", correctCat: "c2", explanation: "Strict direction without collaboration." }
+        ]
+    },
+    {
+        id: "proactive_reactive",
+        group: "Classroom Culture",
+        title: "Proactive vs. Reactive",
+        competency: "Reinforces desired behaviours using proactive strategies rather than reacting.",
+        intro_text: "Are you preventing fire, or fighting fire?",
+        situation: "Students are transitioning to the carpet.",
+        takeaway: "Highlight what you want to see, not what you want to stop.",
+        categories: [
+            { id: "c1", label: "Proactive", sub: "Preventative / Positive" },
+            { id: "c2", label: "Reactive", sub: "Correction / Negative" }
+        ],
+        items: [
+            { text: "\"I see Table 4 is ready with folded arms.\"", correctCat: "c1", explanation: "Narrating the positive models behavior for others." },
+            { text: "\"Stop running!\"", correctCat: "c2", explanation: "Addressing the failure after it happens." },
+            { text: "\"Remember our goal is a silent transition.\"", correctCat: "c1", explanation: "Reminding of the goal *before* the action is complete." },
+            { text: "\"Why is it so noisy?\"", correctCat: "c2", explanation: "Complaining about the current state." }
+        ]
+    },
+    {
+        id: "inclusive_interaction",
+        group: "Classroom Culture",
+        title: "Inclusive Interactions",
+        competency: "Adapts interactions ensuring all students feel acknowledged and valued.",
+        intro_text: "Equity means giving every student what they need, not treating everyone the same.",
+        situation: "You are facilitating a class discussion.",
+        takeaway: "Tailor your support so every voice can be heard.",
+        categories: [
+            { id: "c1", label: "Adaptive/Inclusive", sub: "Supports Needs" },
+            { id: "c2", label: "Rigid/Standard", sub: "One Size Fits All" }
+        ],
+        items: [
+            { text: "Providing sentence starters for a shy student.", correctCat: "c1", explanation: "Scaffolds the output for someone who needs it." },
+            { text: "Calling only on students who raise hands fast.", correctCat: "c2", explanation: "Favors the confident and quick processors." },
+            { text: "Using wait-time (3-5 seconds) after asking a question.", correctCat: "c1", explanation: "Allows slower processors time to think." },
+            { text: "Moving on immediately if a student hesitates.", correctCat: "c2", explanation: "Signals that speed is more important than thinking." }
+        ]
+    },
+
+    // --- MODULE 4: PHYSICAL ENVIRONMENT ---
+    {
+        id: "physical_accessibility",
+        group: "Physical Environment",
+        title: "Accessibility & Inclusion",
+        competency: "Organises physical setup to be accessible for diverse needs.",
+        intro_text: "Can everyone get everywhere?",
+        situation: "You are arranging the furniture.",
+        takeaway: "Physical barriers create learning barriers.",
+        categories: [
+            { id: "c1", label: "Accessible", sub: "Inclusive Space" },
+            { id: "c2", label: "Barrier", sub: "Exclusive Space" }
+        ],
+        items: [
+            { text: "Wide pathways for crutches/wheelchairs.", correctCat: "c1", explanation: "Universal design allowing movement." },
+            { text: "Backpacks scattered in aisles.", correctCat: "c2", explanation: "Tripping hazard and barrier." },
+            { text: "Labels with pictures and text.", correctCat: "c1", explanation: "Accessible to non-readers." },
+            { text: "High shelves for essential supplies.", correctCat: "c2", explanation: "Prevents shorter students/wheelchair users from access." }
+        ]
+    },
+    {
+        id: "sensory_environment",
+        group: "Physical Environment",
+        title: "Sensory Environment",
+        competency: "Integrates visual, auditory, and tactile elements to enhance engagement.",
+        intro_text: "A rich environment stimulates multiple senses.",
+        situation: "You are auditing your classroom decor and tools.",
+        takeaway: "Engage the eye, the ear, and the hand.",
+        categories: [
+            { id: "c1", label: "Multi-sensory", sub: "Rich / Engaging" },
+            { id: "c2", label: "Mono-sensory", sub: "Flat / Abstract" }
+        ],
+        items: [
+            { text: "Sandpaper letters for tracing.", correctCat: "c1", explanation: "Tactile input reinforces shape memory." },
+            { text: "A worksheet with letter 'A'.", correctCat: "c2", explanation: "Visual only, 2D." },
+            { text: "Soft background music during writing.", correctCat: "c1", explanation: "Auditory cue setting the mood." },
+            { text: "Bare white walls.", correctCat: "c2", explanation: "Lack of visual stimulation." }
+        ]
+    },
+    {
+        id: "student_display",
+        group: "Physical Environment",
+        title: "Student Displays",
+        competency: "Creates opportunities for students to display their work.",
+        intro_text: "Whose room is it? The teacher's or the students'?",
+        situation: "You are looking at your bulletin boards.",
+        takeaway: "Displaying student work validates their effort and identity.",
+        categories: [
+            { id: "c1", label: "Student Ownership", sub: "Their Work" },
+            { id: "c2", label: "Teacher Decoration", sub: "Store Bought" }
+        ],
+        items: [
+            { text: "A wall of student self-portraits.", correctCat: "c1", explanation: "Celebrates individual identity." },
+            { text: "Perfect store-bought posters.", correctCat: "c2", explanation: "Looks neat, but lacks student voice." },
+            { text: "Rough drafts showing progress.", correctCat: "c1", explanation: "Values the process of learning." },
+            { text: "Teacher-made anchor charts only.", correctCat: "c2", explanation: "Centers the teacher as the sole expert." }
+        ]
+    },
+
+    // --- MODULE 5: INSTRUCTIONAL PRACTICE ---
+    {
+        id: "lesson_context",
+        group: "Instructional Practice",
+        title: "Lesson Context",
+        competency: "Creates a context for the lesson using prompts, linking to themes/prior knowledge.",
+        intro_text: "Don't start cold. Warm up the brain.",
+        situation: "You are beginning a new topic.",
+        takeaway: "Context is the hook that pulls students in.",
+        categories: [
+            { id: "c1", label: "Contextual Hook", sub: "Engaging Start" },
+            { id: "c2", label: "Cold Start", sub: "Abrupt / Dry" }
+        ],
+        items: [
+            { text: "\"Remember when we saw that bird yesterday? Today...\"", correctCat: "c1", explanation: "Links to shared prior experience." },
+            { text: "\"Open to page 10. Read.\"", correctCat: "c2", explanation: "No bridge built to the content." },
+            { text: "Showing a mystery object related to the topic.", correctCat: "c1", explanation: "Provokes curiosity and questions." },
+            { text: "\"Today is Tuesday, we do Grammar.\"", correctCat: "c2", explanation: "Routine-based, not content-based." }
+        ]
+    },
+    {
+        id: "clear_objectives",
+        group: "Instructional Practice",
+        title: "Clear Objectives",
+        competency: "Clearly communicates the lesson’s objectives and key concepts at the outset.",
+        intro_text: "Objectives are for learning. Instructions are for doing.",
+        situation: "You are telling students what the lesson is about.",
+        takeaway: "Tell them where they are going, not just how to move their feet.",
+        categories: [
+            { id: "c1", label: "Learning Objective", sub: "The 'Why' / 'What'" },
+            { id: "c2", label: "Task Instruction", sub: "The 'Do' / Compliance" }
+        ],
+        items: [
+            { text: "\"We are learning to use adjectives to make writing vivid.\"", correctCat: "c1", explanation: "Explains the cognitive goal." },
+            { text: "\"Complete exercise B on page 4.\"", correctCat: "c2", explanation: "This is a task. One can do it without learning." },
+            { text: "\"By the end, you will be able to predict endings.\"", correctCat: "c1", explanation: "Focuses on the skill acquisition." },
+            { text: "\"Copy the definitions from the board.\"", correctCat: "c2", explanation: "A mechanical instruction." }
+        ]
+    },
     {
         id: "activity_vs_learning",
-        category: "Assessment",
+        group: "Instructional Practice",
         title: "Activity vs. Learning",
         competency: "Distinguish between 'Activity' (Busy work) and 'Learning' (Cognitive gain).",
         intro_text: "Read the classroom moment. Decide if it's proof of compliance or proof of thinking.",
@@ -478,89 +773,10 @@ const nudgeLibrary = [
             { id: "c2", label: "Proof of Learning", sub: "Cognition / Thinking" }
         ],
         items: [
-            { text: "\"Everyone is sitting silently copying the diagram.\"", correctCat: "c1", explanation: "Silence and copying are compliance tasks. They prove students can transcribe, not that they understand." },
-            { text: "\"Student A explains the concept to Student B in their own words.\"", correctCat: "c2", explanation: "Translation into 'own words' requires cognitive processing. This is strong evidence of learning." },
-            { text: "\"All students handed in the worksheet on time.\"", correctCat: "c1", explanation: "Completion is an administrative metric. Students can complete work without understanding it." },
-            { text: "\"A student identifies the error in a wrong example.\"", correctCat: "c2", explanation: "Error analysis requires deep understanding of the rules and logic." }
-        ]
-    },
-    {
-        id: "concept_skill_info",
-        category: "Planning",
-        title: "Concept, Skill, or Info?",
-        competency: "Differentiates between concept, skill, and essential information when articulating learning outcomes.",
-        intro_text: "Effective planning requires knowing if you want students to DO something, UNDERSTAND something, or REMEMBER something.",
-        situation: "You are drafting learning outcomes for your next Unit Plan.",
-        takeaway: "Align your teaching method to the type of outcome. Don't teach a skill like a fact, or a concept like a procedure.",
-        categories: [
-            { id: "c1", label: "Concept", sub: "Deep Understanding (Why)" },
-            { id: "c2", label: "Skill", sub: "Action / Procedure (How)" },
-            { id: "c3", label: "Information", sub: "Fact / Recall (What)" }
-        ],
-        items: [
-            { text: "Students will list the capitals of all 28 states.", correctCat: "c3", explanation: "This is pure recall of facts. It does not require deep understanding or physical skill." },
-            { text: "Students will explain how gravity affects planetary orbits.", correctCat: "c1", explanation: "This requires a mental model of cause-and-effect (Understanding)." },
-            { text: "Students will focus a microscope slide.", correctCat: "c2", explanation: "This is a physical/procedural capability. They must DO it." },
-            { text: "Students will draw a bar graph from data.", correctCat: "c2", explanation: "Constructing a graph is a skill (application of rules)." },
-            { text: "Students will define 'photosynthesis'.", correctCat: "c3", explanation: "Definitions are often treated as information to be recalled." }
-        ]
-    },
-    {
-        id: "proactive_vs_reactive",
-        category: "Classroom Mgmt",
-        title: "Proactive vs. Reactive",
-        competency: "Reinforces desired behaviours using proactive strategies rather than just reacting to negative ones.",
-        intro_text: "Are you preventing issues before they happen, or chasing them after they occur?",
-        situation: "Students are transitioning from their desks to the carpet area.",
-        takeaway: "Proactive strategies build culture. Reactive strategies only suppress chaos temporarily.",
-        categories: [
-            { id: "c1", label: "Proactive Strategy", sub: "Preventative / Positive" },
-            { id: "c2", label: "Reactive Strategy", sub: "Correction / Punitive" }
-        ],
-        items: [
-            { text: "\"I love how Table 3 is walking safely with arms folded.\"", correctCat: "c1", explanation: "Highlighting the positive behavior models it for others before they fail." },
-            { text: "\"Stop running!\"", correctCat: "c2", explanation: "This addresses the behavior only after it has failed. It gives attention to the negative." },
-            { text: "\"Remember, our goal is to be seated in 10 seconds.\"", correctCat: "c1", explanation: "Setting expectations/reminders before the action completes is proactive." },
-            { text: "\"Why is it so noisy in here?\"", correctCat: "c2", explanation: "A rhetorical question after the chaos has started is reactive." },
-            { text: "Teacher stands at the 'bottleneck' to guide traffic.", correctCat: "c1", explanation: "Changing physical position to prevent crowding is a proactive environmental intervention." }
-        ]
-    },
-    {
-        id: "objectives_clarity",
-        category: "Instruction",
-        title: "Clear Objectives",
-        competency: "Clearly communicates the lesson’s objectives and key concepts at the outset.",
-        intro_text: "Does the student know what they are learning, or just what work they have to do?",
-        situation: "You are starting the lesson and explaining the goal to students.",
-        takeaway: "Objectives describe the LEARNING. Instructions describe the WORK. Don't confuse them.",
-        categories: [
-            { id: "c1", label: "Clear Objective", sub: "Focus on Learning/Why" },
-            { id: "c2", label: "Instruction/Task", sub: "Focus on Doing/Compliance" }
-        ],
-        items: [
-            { text: "\"Today we will complete page 45 in the workbook.\"", correctCat: "c2", explanation: "This is a task. A student can do page 45 without knowing what they learned." },
-            { text: "\"We are learning to use adjectives so our stories are more vivid.\"", correctCat: "c1", explanation: "This explains WHAT (adjectives) and WHY (vivid stories)." },
-            { text: "\"Copy the questions from the board.\"", correctCat: "c2", explanation: "Purely instructional. It tells them the physical action required." },
-            { text: "\"By the end of this, you will be able to predict what happens next.\"", correctCat: "c1", explanation: "Focuses on the cognitive skill (predicting) they will acquire." }
-        ]
-    },
-    {
-        id: "environment_access",
-        category: "Environment",
-        title: "Inclusive Setup",
-        competency: "Organises the physical setup to be accessible and inclusive for diverse needs.",
-        intro_text: "Is your classroom setup helping students participate or creating barriers?",
-        situation: "You are arranging furniture and resources for a group project.",
-        takeaway: "The physical environment is the 'Third Teacher'. Ensure it invites everyone in.",
-        categories: [
-            { id: "c1", label: "Inclusive / Accessible", sub: "Removes Barriers" },
-            { id: "c2", label: "Barrier / Exclusionary", sub: "Creates Obstacles" }
-        ],
-        items: [
-            { text: "Wide walkways between all desk groups.", correctCat: "c1", explanation: "Allows movement for all students, including those with mobility aids." },
-            { text: "Materials placed on high shelves.", correctCat: "c2", explanation: "Prevents shorter students or those in wheelchairs from accessing resources independently." },
-            { text: "Labels include both text and pictures.", correctCat: "c1", explanation: "Supports non-readers and English language learners." },
-            { text: "Desks arranged facing the blank wall for 'distraction-free' work.", correctCat: "c2", explanation: "While well-intentioned, this can isolate students and prevent peer support." }
+            { text: "\"Everyone is sitting silently copying the diagram.\"", correctCat: "c1", explanation: "Silence and copying are compliance tasks." },
+            { text: "\"Student A explains the concept to Student B.\"", correctCat: "c2", explanation: "Translation into 'own words' requires cognitive processing." },
+            { text: "\"All students handed in the worksheet on time.\"", correctCat: "c1", explanation: "Completion is an administrative metric." },
+            { text: "\"A student identifies the error in a wrong example.\"", correctCat: "c2", explanation: "Error analysis requires deep understanding." }
         ]
     }
 ];
@@ -572,28 +788,42 @@ const app = {
     index: 0,
 
     init: function() {
-        this.renderMenu();
+        this.renderDropdown();
     },
 
-    renderMenu: function() {
-        const list = document.getElementById('menu-list');
-        list.innerHTML = '';
-
+    renderDropdown: function() {
+        const select = document.getElementById('nudge-selector');
+        select.innerHTML = '<option value="" disabled selected>Select a competency...</option>';
+        
+        // Group by 'group' property
+        const groups = {};
         nudgeLibrary.forEach(nudge => {
-            const item = document.createElement('div');
-            item.className = 'menu-item';
-            item.onclick = () => this.loadNudge(nudge.id);
-            item.innerHTML = `
-                <span class="menu-tag">${nudge.category}</span>
-                <span class="menu-title">${nudge.title}</span>
-            `;
-            list.appendChild(item);
+            if (!groups[nudge.group]) groups[nudge.group] = [];
+            groups[nudge.group].push(nudge);
         });
 
-        this.showScreen('screen-menu');
-        document.getElementById('header-bar').style.display = 'block';
-        document.getElementById('header-label').innerText = 'Teacher Practice';
-        document.getElementById('situation-text').innerText = 'Select a competency to begin';
+        // Create OptGroups
+        for (const [groupName, nudges] of Object.entries(groups)) {
+            const optgroup = document.createElement('optgroup');
+            optgroup.label = groupName;
+            nudges.forEach(n => {
+                const option = document.createElement('option');
+                option.value = n.id;
+                option.text = n.title;
+                optgroup.appendChild(option);
+            });
+            select.appendChild(optgroup);
+        }
+    },
+
+    loadSelectedNudge: function() {
+        const select = document.getElementById('nudge-selector');
+        const id = select.value;
+        if (id) {
+            this.loadNudge(id);
+        } else {
+            alert("Please select a module from the dropdown.");
+        }
     },
 
     loadNudge: function(id) {
@@ -721,7 +951,10 @@ const app = {
     },
 
     showMenu: function() {
-        this.renderMenu();
+        this.showScreen('screen-menu');
+        document.getElementById('header-bar').style.display = 'block';
+        document.getElementById('header-label').innerText = 'Teacher Practice';
+        document.getElementById('situation-text').innerText = 'Select a competency to begin';
     },
 
     showScreen: function(id) {
