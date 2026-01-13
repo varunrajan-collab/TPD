@@ -3,468 +3,772 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Classroom Simulation: Teacher Decisions</title>
+    <title>Teacher Self-Assessment Nudge</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root {
-            /* NEW AESTHETIC: Warm, Modern, Editorial */
-            
-            /* Backgrounds */
-            --bg-body: #FAF9F6;       /* Warm Off-White (Paper) */
-            --bg-card: #FFFFFF;
-            --bg-accent-subtle: #F3E8FF; /* Very light Violet */
-            
-            /* Text Colors */
-            --text-header: #111827;   /* Almost Black */
-            --text-body: #4B5563;     /* Warm Gray */
-            --text-sub: #9CA3AF;      /* Light Gray */
-            
-            /* Accents */
-            --primary: #8B5CF6;       /* Soft Violet */
-            --primary-hover: #7C3AED;
-            --primary-text: #FFFFFF;
-            
-            /* Status Colors (Pastel/Light) */
-            --impact-bg: #FFF7ED;     /* Light Orange/Peach for impact */
-            --impact-border: #FFEDD5;
-            
-            /* Structure */
-            --radius-card: 24px;
-            --radius-btn: 50px;       /* Pill shape */
-            --shadow-card: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
-            --font-serif: Georgia, 'Times New Roman', Times, serif;
-            --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
-        }
-
         * {
+            margin: 0;
+            padding: 0;
             box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-
+        
         body {
-            font-family: var(--font-sans);
-            background-color: var(--bg-body);
-            color: var(--text-body);
+            background-color: #f8f9fa;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .container {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            padding: 30px;
+            margin-bottom: 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eaeaea;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            font-weight: 600;
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+        }
+        
+        .subtitle {
+            color: #7f8c8d;
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+        }
+        
+        .step-indicator {
             display: flex;
             justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            padding: 20px;
-            line-height: 1.7;
-        }
-
-        #app-container {
-            background: var(--bg-card);
-            width: 100%;
-            max-width: 680px;
-            border-radius: var(--radius-card);
-            box-shadow: var(--shadow-card);
-            overflow: hidden;
+            margin-bottom: 30px;
             position: relative;
         }
-
-        /* Decorative Top Line */
-        #app-container::before {
-            content: "";
+        
+        .step {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background-color: #e0e0e0;
+            color: #777;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin: 0 10px;
+            z-index: 2;
+        }
+        
+        .step.active {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .step.completed {
+            background-color: #2ecc71;
+            color: white;
+        }
+        
+        .step-line {
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 6px;
-            background: linear-gradient(90deg, var(--primary), #C084FC);
+            top: 17px;
+            left: 50px;
+            right: 50px;
+            height: 2px;
+            background-color: #e0e0e0;
+            z-index: 1;
         }
-
-        /* Header Area */
-        .simulation-header {
-            padding: 40px 40px 20px 40px;
-            text-align: center;
+        
+        .content-box {
+            background-color: #f8fafc;
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-left: 4px solid #3498db;
         }
-
-        .competency-label {
-            font-family: var(--font-sans);
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            color: var(--primary);
-            font-weight: 700;
-            display: block;
-            margin-bottom: 12px;
-        }
-
-        .competency-title {
-            font-family: var(--font-serif);
-            font-size: 1.5rem;
-            font-weight: 500;
-            color: var(--text-header);
-            margin: 0;
-            line-height: 1.3;
-        }
-
-        /* Main Content Area */
-        .content-area {
-            padding: 20px 40px 40px 40px;
-            animation: fadeIn 0.6s ease-out;
-        }
-
-        /* Scenario Box */
+        
         .scenario-box {
-            margin-bottom: 32px;
-            text-align: center;
+            background-color: #e8f4fc;
+            border-left-color: #2980b9;
         }
-
-        .scenario-text {
+        
+        h2 {
+            color: #2c3e50;
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+        }
+        
+        p {
+            margin-bottom: 15px;
+            color: #444;
+        }
+        
+        .statement-box {
+            background-color: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 3px 5px rgba(0,0,0,0.03);
+        }
+        
+        .statement-text {
             font-size: 1.1rem;
-            color: var(--text-header);
-            font-weight: 400;
+            margin-bottom: 20px;
+            font-weight: 500;
         }
-
-        /* Options */
-        .options-group {
+        
+        .options-container {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .option {
+            flex: 1;
+            min-width: 160px;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            background-color: white;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s ease;
+        }
+        
+        .option:hover {
+            background-color: #f5f5f5;
+            border-color: #bdbdbd;
+        }
+        
+        .option.selected {
+            background-color: #e3f2fd;
+            border-color: #2196f3;
+            color: #1976d2;
+            font-weight: 500;
+        }
+        
+        .option-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 3px;
+        }
+        
+        .option-desc {
+            font-size: 0.85rem;
+            color: #666;
+        }
+        
+        .pattern-display {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+            gap: 15px;
+        }
+        
+        .pattern-item {
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            align-items: center;
         }
-
-        .option-btn {
-            background: #fff;
-            border: 2px solid #F3F4F6;
-            padding: 20px 28px;
-            text-align: left;
-            border-radius: var(--radius-card); /* Softer corners */
-            cursor: pointer;
-            font-family: var(--font-sans);
-            font-size: 1rem;
-            color: var(--text-body);
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
+        
+        .pattern-circle {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: white;
         }
-
-        .option-btn:hover {
-            border-color: var(--primary);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.1);
-        }
-
-        .option-label {
-            font-weight: 700;
-            color: var(--primary);
-            margin-right: 8px;
+        
+        .pattern-label {
             font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        /* Feedback / Reflection Screen */
-        .impact-section {
-            margin-bottom: 32px;
-        }
-
-        .impact-title {
-            font-family: var(--font-sans);
-            font-size: 0.8rem;
-            font-weight: 700;
-            color: var(--text-sub);
-            margin-bottom: 12px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .impact-card {
-            background: var(--impact-bg);
-            border: 1px solid var(--impact-border);
-            padding: 24px;
-            border-radius: 16px;
-            margin-bottom: 24px;
+            color: #555;
         }
         
-        /* Success specific styling override */
-        .impact-card.success {
-            background: var(--bg-accent-subtle);
-            border-color: #E9D5FF;
-        }
-
-        .impact-card ul {
-            margin: 0;
-            padding-left: 20px;
-            color: var(--text-header);
+        .impact-box {
+            background-color: #f0f7ff;
+            border-left-color: #1a73e8;
         }
         
-        .impact-card li {
-            margin-bottom: 8px;
+        .reflection-box {
+            background-color: #f9f9f9;
+            border-left-color: #9c27b0;
         }
-
-        .analysis-text {
-            color: var(--text-body);
-            font-size: 1rem;
-            font-style: italic;
-            border-top: 1px solid rgba(0,0,0,0.05);
-            padding-top: 16px;
-            margin-top: 16px;
+        
+        .reflection-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 12px;
+            margin-top: 15px;
         }
-
-        /* Buttons */
-        .action-btn {
-            background-color: var(--primary);
-            color: var(--primary-text);
-            border: none;
-            padding: 16px 36px;
-            border-radius: var(--radius-btn);
-            font-size: 1rem;
+        
+        .reflection-option {
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
             cursor: pointer;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-            display: block;
-            width: 100%;
-            transition: background 0.2s;
-            box-shadow: 0 4px 6px -1px rgba(139, 92, 246, 0.3);
-        }
-
-        .action-btn:hover {
-            background-color: var(--primary-hover);
+            transition: all 0.2s ease;
         }
         
-        .action-btn.secondary {
-            background-color: transparent;
-            border: 2px solid var(--primary);
-            color: var(--primary);
-            box-shadow: none;
+        .reflection-option:hover {
+            background-color: #f0f0f0;
         }
         
-        .action-btn.secondary:hover {
-            background-color: var(--bg-accent-subtle);
+        .reflection-option.selected {
+            background-color: #f3e5f5;
+            border-color: #9c27b0;
         }
-
-        /* Fade Animation */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+        
+        .btn-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
         }
-
+        
+        button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        #next-btn {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        #next-btn:hover {
+            background-color: #2980b9;
+        }
+        
+        #next-btn:disabled {
+            background-color: #bdc3c7;
+            cursor: not-allowed;
+        }
+        
+        #back-btn {
+            background-color: #f8f9fa;
+            color: #333;
+            border: 1px solid #ddd;
+        }
+        
+        #back-btn:hover {
+            background-color: #e9ecef;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .competency-display {
+            background-color: #fff8e1;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin-bottom: 20px;
+            font-style: italic;
+            color: #5d4037;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+            
+            .options-container {
+                flex-direction: column;
+            }
+            
+            .pattern-display {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .reflection-options {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 <body>
-
-<div id="app-container">
-    <div class="simulation-header">
-        <span class="competency-label">Competency Focus</span>
-        <h1 class="competency-title">Clearly communicates lesson objectives and key concepts at the outset.</h1>
-    </div>
-    
-    <div id="content" class="content-area">
-        <!-- Dynamic content will be injected here -->
-    </div>
-</div>
-
-<script>
-    // --- SIMULATION CONTENT ---
-    
-    const simulationData = {
-        scenarios: [
-            // SCENARIO 1
-            {
-                id: 1,
-                context: "You are about to begin a new lesson. Students are settling down, and you want to start the class effectively.",
-                options: [
-                    {
-                        label: "Option A",
-                        text: "Review the previous day's homework immediately to ensure everyone did it.",
-                        type: "confusing", 
-                        reactions: [
-                            "Students switch to 'task mode' but are unsure what the NEW learning goal is.",
-                            "Engagement is limited to checking boxes rather than curiosity."
-                        ],
-                        impact: "The start feels disjointed. Time is spent on past compliance rather than future learning.",
-                        analysis: "This choice prioritizes administrative tasks over instructional clarity. It does not set a clear objective for the current lesson."
-                    },
-                    {
-                        label: "Option B",
-                        text: "State clearly what students will be able to do by the end of the class and why it matters.",
-                        type: "aligned",
-                        reactions: [
-                            "Students understand the goal of the lesson.",
-                            "They begin making connections to what they already know."
-                        ],
-                        impact: "The lesson starts with focus. Students are mentally prepared for the new content."
-                    },
-                    {
-                        label: "Option C",
-                        text: "Tell the students to open page 45 and start reading silently.",
-                        type: "misaligned",
-                        reactions: [
-                            "Students comply mechanically, but some are visibly disengaged.",
-                            "Students do not understand the purpose of the reading."
-                        ],
-                        impact: "Low engagement. You will likely have to interrupt later to explain what they should be looking for.",
-                        analysis: "Assigning a task without context leads to passive compliance, not active learning. The objective remains unclear."
-                    }
-                ]
-            },
-            // SCENARIO 2 (Follow-up)
-            {
-                id: 2,
-                context: "Midway through the explanation, a student raises their hand and asks: 'Why do we need to learn this? It seems useless.'",
-                options: [
-                    {
-                        label: "Option A",
-                        text: "Explain a specific real-world application of the concept relevant to their lives.",
-                        type: "aligned",
-                        reactions: [
-                            "The student perks up and listens more intently.",
-                            "Other students nod, seeing the personal value."
-                        ],
-                        impact: "The disruption becomes a learning moment that reinforces the objective."
-                    },
-                    {
-                        label: "Option B",
-                        text: "Tell them it will be on the final exam so they need to know it.",
-                        type: "misaligned",
-                        reactions: [
-                            "The student nods but looks bored/resigned.",
-                            "Motivation shifts from learning to fear of failure."
-                        ],
-                        impact: "You have secured compliance, but lost genuine engagement.",
-                        analysis: "Using grades as the sole justification bypasses the opportunity to connect the objective to the student's reality."
-                    },
-                    {
-                        label: "Option C",
-                        text: "Ask them to hold all questions until the end of the lecture to maintain flow.",
-                        type: "confusing",
-                        reactions: [
-                            "The student disengages and stops taking notes.",
-                            "The class feels that curiosity is a distraction."
-                        ],
-                        impact: "A key opportunity to clarify the 'Why' of the lesson is missed.",
-                        analysis: "While this protects your timeline, it signals that the lesson plan is more important than student understanding."
-                    }
-                ]
-            }
-        ],
-        finalInsight: "Aligning your actions with clear objectives helps students stay focused, confident, and engaged throughout the lesson. Consistency builds trust in your leadership."
-    };
-
-    // --- STATE MANAGEMENT ---
-    
-    let currentScenarioIndex = 0;
-    let isRetryState = false; // Tracks if we are currently re-trying a scenario
-
-    const contentDiv = document.getElementById('content');
-
-    // --- RENDER FUNCTIONS ---
-
-    // 1. Render Scenario (Input Phase)
-    function renderScenario() {
-        const scenario = simulationData.scenarios[currentScenarioIndex];
-        
-        // If it's a retry, we add a specific header
-        const retryHeader = isRetryState 
-            ? `<p style="color: var(--primary); font-weight:600; margin-bottom:16px;">Given the previous outcome, consider your approach:</p>` 
-            : `<p class="scenario-text"><strong>Scenario:</strong> ${scenario.context}</p>`;
-
-        const optionsHTML = scenario.options.map((opt, index) => `
-            <button class="option-btn" onclick="handleDecision(${index})">
-                <span class="option-label">${opt.label}</span> ${opt.text}
-            </button>
-        `).join('');
-
-        contentDiv.innerHTML = `
-            <div class="scenario-box">
-                ${retryHeader}
-                ${isRetryState ? '' : ''}
-            </div>
+    <div class="container">
+        <header>
+            <h1>Self-Assessment Nudge</h1>
+            <div class="subtitle">Reflect on your practice based on what really happened</div>
             
-            <div class="options-group">
-                ${optionsHTML}
+            <div class="step-indicator">
+                <div class="step-line"></div>
+                <div class="step active" id="step1">1</div>
+                <div class="step" id="step2">2</div>
+                <div class="step" id="step3">3</div>
+                <div class="step" id="step4">4</div>
+                <div class="step" id="step5">5</div>
+                <div class="step" id="step6">6</div>
             </div>
-        `;
-    }
-
-    // 2. Handle Decision Logic
-    window.handleDecision = function(optionIndex) {
-        const scenario = simulationData.scenarios[currentScenarioIndex];
-        const selectedOption = scenario.options[optionIndex];
-
-        if (selectedOption.type === 'aligned') {
-            renderAlignedOutcome(selectedOption);
-        } else {
-            renderMisalignedOutcome(selectedOption);
-        }
-    };
-
-    // 3. Render Misaligned Outcome (Reflection Phase)
-    function renderMisalignedOutcome(option) {
-        // Construct the consequences list
-        const reactionList = option.reactions.map(r => `<li>${r}</li>`).join('');
-
-        contentDiv.innerHTML = `
-            <div class="impact-section">
-                <div class="impact-title">Immediate Classroom Consequence</div>
-                <div class="impact-card">
-                    <ul>${reactionList}</ul>
-                    <div style="margin-top:16px;"><strong>Instructional Impact:</strong> ${option.impact}</div>
+        </header>
+        
+        <!-- Hidden competency display (for system use only) -->
+        <div class="competency-display hidden" id="competency-display">
+            <strong>System Note:</strong> "Responsive Teaching - Adjusting instruction in real-time based on student understanding."
+        </div>
+        
+        <!-- Step 1: Teaching Moment Scenario -->
+        <div id="step1-content" class="content-box scenario-box">
+            <h2>Step 1: Real Teaching Moment</h2>
+            <p>The bell rings, and students are settling in for your English lesson. You've prepared a challenging new concept. You look around and see a few students already looking confused during your introduction, while others are nodding along. You have a detailed lesson plan to follow, but you notice the need to check in before moving on.</p>
+        </div>
+        
+        <!-- Step 2: Anchor in the Moment -->
+        <div id="step2-content" class="content-box hidden">
+            <h2>Step 2: Anchor in a Specific Moment</h2>
+            <p>Think about what you actually did in a similar moment during a recent lesson or interaction. Take a moment to picture that situation clearly.</p>
+            <p>Recall a specific time this week when you introduced something new and sensed varied levels of understanding right from the start. What actually happened in that moment?</p>
+        </div>
+        
+        <!-- Step 3: Practice-Based Statements -->
+        <div id="step3-content" class="content-box hidden">
+            <h2>Step 3: Reflect on Observable Actions</h2>
+            <p>For each statement below, choose the option that best matches what happened in that specific moment you recalled.</p>
+            
+            <div class="statement-container">
+                <!-- Statement 1 -->
+                <div class="statement-box" id="statement1">
+                    <div class="statement-text">I paused my planned instruction to ask a specific question to gauge student understanding.</div>
+                    <div class="options-container">
+                        <div class="option" data-value="clearly" data-statement="1">
+                            <span class="option-label">Happened clearly</span>
+                            <span class="option-desc">I distinctly recall doing this</span>
+                        </div>
+                        <div class="option" data-value="partially" data-statement="1">
+                            <span class="option-label">Happened partially</span>
+                            <span class="option-desc">Some elements were present</span>
+                        </div>
+                        <div class="option" data-value="not" data-statement="1">
+                            <span class="option-label">Did not happen</span>
+                            <span class="option-desc">This did not occur</span>
+                        </div>
+                    </div>
                 </div>
                 
-                <div class="impact-title">Analysis</div>
-                <div class="impact-card" style="background: #F9FAFB; border-color: #E5E7EB;">
-                    <p style="margin:0; color: var(--text-body);">${option.analysis}</p>
+                <!-- Statement 2 -->
+                <div class="statement-box hidden" id="statement2">
+                    <div class="statement-text">I noticed which students were engaged and which seemed unsure during my initial explanation.</div>
+                    <div class="options-container">
+                        <div class="option" data-value="clearly" data-statement="2">
+                            <span class="option-label">Happened clearly</span>
+                            <span class="option-desc">I distinctly recall doing this</span>
+                        </div>
+                        <div class="option" data-value="partially" data-statement="2">
+                            <span class="option-label">Happened partially</span>
+                            <span class="option-desc">Some elements were present</span>
+                        </div>
+                        <div class="option" data-value="not" data-statement="2">
+                            <span class="option-label">Did not happen</span>
+                            <span class="option-desc">This did not occur</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Statement 3 -->
+                <div class="statement-box hidden" id="statement3">
+                    <div class="statement-text">I made a decision in the moment to adjust my next step based on what I saw or heard from students.</div>
+                    <div class="options-container">
+                        <div class="option" data-value="clearly" data-statement="3">
+                            <span class="option-label">Happened clearly</span>
+                            <span class="option-desc">I distinctly recall doing this</span>
+                        </div>
+                        <div class="option" data-value="partially" data-statement="3">
+                            <span class="option-label">Happened partially</span>
+                            <span class="option-desc">Some elements were present</span>
+                        </div>
+                        <div class="option" data-value="not" data-statement="3">
+                            <span class="option-label">Did not happen</span>
+                            <span class="option-desc">This did not occur</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Statement 4 -->
+                <div class="statement-box hidden" id="statement4">
+                    <div class="statement-text">I provided a brief opportunity for students to signal their confusion or confidence before proceeding.</div>
+                    <div class="options-container">
+                        <div class="option" data-value="clearly" data-statement="4">
+                            <span class="option-label">Happened clearly</span>
+                            <span class="option-desc">I distinctly recall doing this</span>
+                        </div>
+                        <div class="option" data-value="partially" data-statement="4">
+                            <span class="option-label">Happened partially</span>
+                            <span class="option-desc">Some elements were present</span>
+                        </div>
+                        <div class="option" data-value="not" data-statement="4">
+                            <span class="option-label">Did not happen</span>
+                            <span class="option-desc">This did not occur</span>
+                        </div>
+                    </div>
                 </div>
             </div>
-
-            <button class="action-btn secondary" onclick="triggerRetry()">Reflect and Retry</button>
-        `;
-    }
-
-    // 4. Trigger Retry
-    window.triggerRetry = function() {
-        isRetryState = true;
-        renderScenario(); // Re-render the same scenario
-    };
-
-    // 5. Render Aligned Outcome (Success Phase)
-    function renderAlignedOutcome(option) {
-        const reactionList = option.reactions.map(r => `<li>${r}</li>`).join('');
-
-        const isLastScenario = currentScenarioIndex >= simulationData.scenarios.length - 1;
-        const buttonText = isLastScenario ? "Complete Simulation" : "Continue to Next Scenario";
-        const buttonAction = isLastScenario ? "renderFinal()" : "nextScenario()";
-
-        contentDiv.innerHTML = `
-            <div class="impact-section">
-                <div class="impact-title" style="color: var(--primary);">Outcomes</div>
-                <div class="impact-card success">
-                    <p><strong>Classroom Response:</strong></p>
-                    <ul>${reactionList}</ul>
-                    <p style="margin-top:12px;">${option.impact}</p>
+            
+            <div class="statement-counter">
+                <p id="statement-counter-text">Statement 1 of 4</p>
+            </div>
+        </div>
+        
+        <!-- Step 4: Pattern Display -->
+        <div id="step4-content" class="content-box hidden">
+            <h2>Step 4: Pattern of Practice</h2>
+            <p>Based on your reflections, here is a simple pattern of what was visible in that moment:</p>
+            
+            <div class="pattern-display">
+                <div class="pattern-item">
+                    <div class="pattern-circle" id="clear-circle" style="background-color: #2ecc71;">2</div>
+                    <div class="pattern-label">Clearly Present</div>
+                </div>
+                <div class="pattern-item">
+                    <div class="pattern-circle" id="partial-circle" style="background-color: #f39c12;">1</div>
+                    <div class="pattern-label">Partially Present</div>
+                </div>
+                <div class="pattern-item">
+                    <div class="pattern-circle" id="not-circle" style="background-color: #e74c3c;">1</div>
+                    <div class="pattern-label">Not Present</div>
                 </div>
             </div>
-
-            <button class="action-btn" onclick="${buttonAction}">${buttonText}</button>
-        `;
-    }
-
-    // 6. Move to Next Scenario
-    window.nextScenario = function() {
-        currentScenarioIndex++;
-        isRetryState = false; // Reset retry state for new level
-        renderScenario();
-    };
-
-    // 7. Render Final Insight
-    window.renderFinal = function() {
-        contentDiv.innerHTML = `
-            <div style="text-align: center; padding: 20px 0;">
-                <h2 style="font-family: var(--font-serif); color: var(--text-header); margin-bottom: 24px;">Simulation Complete</h2>
-                <div style="background: var(--bg-accent-subtle); padding: 32px; border-radius: var(--radius-card); text-align: left;">
-                    <strong style="display:block; margin-bottom:12px; color: var(--primary); text-transform:uppercase; letter-spacing:1px; font-size:0.85rem;">Professional Insight</strong>
-                    <span style="font-size:1.1rem; color: var(--text-header);">${simulationData.finalInsight}</span>
-                </div>
-                <button class="action-btn secondary" style="margin-top: 30px;" onclick="location.reload()">Restart Simulation</button>
+            
+            <p id="pattern-summary" style="text-align: center; font-weight: 500; margin-top: 15px;">Some actions were clearly present, others were partially visible.</p>
+        </div>
+        
+        <!-- Step 5: Pattern Interpretation -->
+        <div id="step5-content" class="content-box hidden">
+            <h2>Step 5: Interpretation</h2>
+            <p>This pattern often reflects a moment where awareness of the classroom was active, and the balance between following a plan and responding to immediate signals was in play.</p>
+            <p>Such patterns typically show that noticing student cues was happening, with varying levels of responsive adjustment in the moment.</p>
+        </div>
+        
+        <!-- Step 6: Connect to Impact -->
+        <div id="step6-content" class="content-box impact-box hidden">
+            <h2>Step 6: Connection to Impact</h2>
+            <p>When teachers notice and adjust in these moments, it typically allows students to feel more seen and can prevent early confusion from growing.</p>
+            <p>This often leads to increased student engagement and more effective differentiation of instruction in real-time.</p>
+        </div>
+        
+        <!-- Step 7: Reflective Anchor -->
+        <div id="step7-content" class="content-box reflection-box hidden">
+            <h2>Final Reflection</h2>
+            <p>Which part of that moment felt least visible to you?</p>
+            
+            <div class="reflection-options">
+                <div class="reflection-option" data-value="noticing">Noticing the specific cues from students</div>
+                <div class="reflection-option" data-value="deciding">Deciding to pause or adjust the plan</div>
+                <div class="reflection-option" data-value="knowing">Knowing what question or action to take next</div>
+                <div class="reflection-option" data-value="unsure">Not sure</div>
             </div>
-        `;
-    };
+        </div>
+        
+        <!-- Navigation Buttons -->
+        <div class="btn-container">
+            <button id="back-btn" class="hidden">Back</button>
+            <button id="next-btn">Next</button>
+        </div>
+    </div>
+    
+    <footer>
+        <p>Teacher Self-Assessment Nudge • Focus on real practice, not ideals</p>
+    </footer>
 
-    // Initialize
-    renderScenario();
-
-</script>
-
+    <script>
+        // State management
+        let currentStep = 1;
+        const totalSteps = 7;
+        let responses = {
+            statement1: null,
+            statement2: null,
+            statement3: null,
+            statement4: null
+        };
+        let currentStatement = 1;
+        const totalStatements = 4;
+        let finalReflection = null;
+        
+        // DOM elements
+        const stepElements = document.querySelectorAll('.step');
+        const contentElements = document.querySelectorAll('[id$="-content"]');
+        const nextBtn = document.getElementById('next-btn');
+        const backBtn = document.getElementById('back-btn');
+        const statementCounterText = document.getElementById('statement-counter-text');
+        const clearCircle = document.getElementById('clear-circle');
+        const partialCircle = document.getElementById('partial-circle');
+        const notCircle = document.getElementById('not-circle');
+        const patternSummary = document.getElementById('pattern-summary');
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            updateStepIndicator();
+            
+            // Add event listeners for statement options
+            document.querySelectorAll('.option').forEach(option => {
+                option.addEventListener('click', function() {
+                    const statementNum = this.getAttribute('data-statement');
+                    const value = this.getAttribute('data-value');
+                    
+                    // Remove selection from other options for this statement
+                    document.querySelectorAll(`.option[data-statement="${statementNum}"]`).forEach(opt => {
+                        opt.classList.remove('selected');
+                    });
+                    
+                    // Select this option
+                    this.classList.add('selected');
+                    
+                    // Store response
+                    responses[`statement${statementNum}`] = value;
+                    
+                    // If we're on the last statement, update next button text
+                    if (currentStatement === totalStatements) {
+                        nextBtn.textContent = 'See Pattern';
+                    }
+                });
+            });
+            
+            // Add event listeners for reflection options
+            document.querySelectorAll('.reflection-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    document.querySelectorAll('.reflection-option').forEach(opt => {
+                        opt.classList.remove('selected');
+                    });
+                    
+                    this.classList.add('selected');
+                    finalReflection = this.getAttribute('data-value');
+                    nextBtn.textContent = 'Complete';
+                });
+            });
+            
+            // Next button event
+            nextBtn.addEventListener('click', nextStep);
+            
+            // Back button event
+            backBtn.addEventListener('click', previousStep);
+        });
+        
+        function nextStep() {
+            // Validation for current step
+            if (currentStep === 3) {
+                // Check if current statement has a response
+                if (!responses[`statement${currentStatement}`]) {
+                    alert('Please select an option before proceeding.');
+                    return;
+                }
+                
+                // If not the last statement, show next statement
+                if (currentStatement < totalStatements) {
+                    document.getElementById(`statement${currentStatement}`).classList.add('hidden');
+                    currentStatement++;
+                    document.getElementById(`statement${currentStatement}`).classList.remove('hidden');
+                    statementCounterText.textContent = `Statement ${currentStatement} of ${totalStatements}`;
+                    
+                    // Update next button text for last statement
+                    if (currentStatement === totalStatements) {
+                        nextBtn.textContent = 'See Pattern';
+                    }
+                    
+                    return; // Don't move to next step yet
+                }
+            }
+            
+            // Move to next step
+            if (currentStep < totalSteps) {
+                // Hide current content
+                document.getElementById(`step${currentStep}-content`).classList.add('hidden');
+                
+                // Update step indicator
+                stepElements[currentStep - 1].classList.remove('active');
+                stepElements[currentStep - 1].classList.add('completed');
+                
+                currentStep++;
+                
+                // Update step indicator
+                stepElements[currentStep - 1].classList.add('active');
+                
+                // Show new content
+                document.getElementById(`step${currentStep}-content`).classList.remove('hidden');
+                
+                // Update buttons
+                updateButtons();
+                
+                // If moving to step 4, calculate and display pattern
+                if (currentStep === 4) {
+                    calculatePattern();
+                }
+                
+                // If moving to final step, update button
+                if (currentStep === totalSteps) {
+                    nextBtn.textContent = 'Complete Assessment';
+                }
+            } else {
+                // Final step - complete the assessment
+                if (!finalReflection) {
+                    alert('Please select a reflection option.');
+                    return;
+                }
+                
+                // Show completion message
+                alert('Self-assessment complete. Thank you for your reflection.');
+                nextBtn.textContent = 'Completed';
+                nextBtn.disabled = true;
+                
+                // Log results for demonstration
+                console.log('Assessment Results:', {
+                    responses: responses,
+                    pattern: calculatePatternValues(),
+                    reflection: finalReflection
+                });
+            }
+        }
+        
+        function previousStep() {
+            if (currentStep > 1) {
+                // Handle step 3 (statements) specially
+                if (currentStep === 3 && currentStatement > 1) {
+                    // Go to previous statement instead of previous step
+                    document.getElementById(`statement${currentStatement}`).classList.add('hidden');
+                    currentStatement--;
+                    document.getElementById(`statement${currentStatement}`).classList.remove('hidden');
+                    statementCounterText.textContent = `Statement ${currentStatement} of ${totalStatements}`;
+                    nextBtn.textContent = currentStatement === totalStatements ? 'See Pattern' : 'Next';
+                    return;
+                }
+                
+                // Hide current content
+                document.getElementById(`step${currentStep}-content`).classList.add('hidden');
+                
+                // Update step indicator
+                stepElements[currentStep - 1].classList.remove('active');
+                if (currentStep > 2) {
+                    stepElements[currentStep - 2].classList.remove('completed');
+                }
+                
+                currentStep--;
+                
+                // Update step indicator
+                stepElements[currentStep - 1].classList.add('active');
+                
+                // Show previous content
+                document.getElementById(`step${currentStep}-content`).classList.remove('hidden');
+                
+                // Update buttons
+                updateButtons();
+                
+                // If going back to step 3 from step 4, reset statement display
+                if (currentStep === 3) {
+                    // Show only the current statement
+                    for (let i = 1; i <= totalStatements; i++) {
+                        const statement = document.getElementById(`statement${i}`);
+                        if (i === currentStatement) {
+                            statement.classList.remove('hidden');
+                        } else {
+                            statement.classList.add('hidden');
+                        }
+                    }
+                    statementCounterText.textContent = `Statement ${currentStatement} of ${totalStatements}`;
+                    nextBtn.textContent = currentStatement === totalStatements ? 'See Pattern' : 'Next';
+                }
+            }
+        }
+        
+        function updateStepIndicator() {
+            stepElements.forEach((step, index) => {
+                step.classList.remove('active', 'completed');
+                if (index + 1 === currentStep) {
+                    step.classList.add('active');
+                } else if (index + 1 < currentStep) {
+                    step.classList.add('completed');
+                }
+            });
+        }
+        
+        function updateButtons() {
+            // Show/hide back button
+            if (currentStep > 1 && currentStep < totalSteps) {
+                backBtn.classList.remove('hidden');
+            } else {
+                backBtn.classList.add('hidden');
+            }
+            
+            // Update next button text
+            if (currentStep === totalSteps) {
+                nextBtn.textContent = 'Complete Assessment';
+            } else if (currentStep === 3 && currentStatement === totalStatements) {
+                nextBtn.textContent = 'See Pattern';
+            } else if (currentStep === 6) {
+                nextBtn.textContent = 'Final Reflection';
+            } else {
+                nextBtn.textContent = 'Next';
+            }
+        }
+        
+        function calculatePattern() {
+            const values = calculatePatternValues();
+            
+            // Update pattern display
+            clearCircle.textContent = values.clear;
+            partialCircle.textContent = values.partial;
+            notCircle.textContent = values.not;
+            
+            // Update pattern summary text
+            let summary = '';
+            if (values.clear >= 3) {
+                summary = 'Most actions were clearly present.';
+            } else if (values.clear >= 2 && values.partial >= 1) {
+                summary = 'Several actions were clearly present, with some appearing inconsistently.';
+            } else if (values.partial >= 2 && values.clear >= 1) {
+                summary = 'Actions were partially present, with some clearly visible.';
+            } else if (values.partial >= 3) {
+                summary = 'Most actions were partially present.';
+            } else if (values.not >= 2) {
+                summary = 'Several actions were not present in that moment.';
+            } else {
+                summary = 'Some actions were clearly present, others were partially visible.';
+            }
+            
+            patternSummary.textContent = summary;
+        }
+        
+        function calculatePatternValues() {
+            let clear = 0, partial = 0, not = 0;
+            
+            // Count response types
+            for (let i = 1; i <= totalStatements; i++) {
+                const response = responses[`statement${i}`];
+                if (response === 'clearly') clear++;
+                if (response === 'partially') partial++;
+                if (response === 'not') not++;
+            }
+            
+            return { clear, partial, not };
+        }
+    </script>
 </body>
 </html>
