@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reflection</title>
+    <style>
+        :root {
+            --bg-page: #fcfcfd;
+            --bg-card: #ffffff;
+            --text-main: #18181b;
+            --text-muted: #71717a;
+            --accent-primary: #27272a;
+            --accent-hover: #3f3f46;
+            --border: #e4e4e7;
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+            
+            /* Pattern Colors - Muted and professional */
+            --color-clearly: #10b981;
+            --color-partially: #f59e0b;
+            --color-not: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-page);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 24px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .nudge-container {
+            width: 100%;
+            max-width: 580px;
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 48px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Subtle progress indicator at the top */
+        .progress-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 4px;
+            background: var(--border);
+            width: 100%;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--accent-primary);
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .content-area {
+            min-height: 240px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        h2 {
+            font-size: 1.35rem;
+            font-weight: 500;
+            line-height: 1.5;
+            margin-bottom: 24px;
+            letter-spacing: -0.01em;
+            color: var(--text-main);
+        }
+
+        p {
+            font-size: 1.05rem;
+            line-height: 1.7;
+            color: var(--text-muted);
+            margin-bottom: 24px;
+        }
+
+        .options-grid {
+            display: grid;
+            gap: 12px;
+            margin-top: auto;
+        }
+
+        .option-button {
+            padding: 18px 24px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: transparent;
+            cursor: pointer;
+            text-align: left;
+            font-size: 1rem;
+            color: var(--text-main);
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .option-button:hover {
+            border-color: var(--accent-primary);
+            background-color: #fafafa;
+        }
+
+        .option-button:active {
+            transform: scale(0.98);
+        }
+
+        .navigation {
+            margin-top: 40px;
+            display: flex;
+            justify-content: flex-end;
+            padding-top: 24px;
+            border-top: 1px solid var(--border);
+        }
+
+        .primary-btn {
+            background-color: var(--accent-primary);
+            color: white;
+            border: none;
+            padding: 14px 32px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .primary-btn:hover {
+            background-color: var(--accent-hover);
+        }
+
+        /* Pattern Visualization */
+        .pattern-visualizer {
+            display: flex;
+            gap: 8px;
+            margin: 32px 0;
+            height: 8px;
+            width: 100%;
+        }
+
+        .bar {
+            flex: 1;
+            border-radius: 4px;
+            background: var(--border);
+            transition: background-color 0.8s ease;
+        }
+
+        .bar-clearly { background-color: var(--color-clearly); }
+        .bar-partially { background-color: var(--color-partially); }
+        .bar-not { background-color: var(--color-not); }
+
+        .hidden { display: none; }
+
+        .fade-in {
+            animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes slideUpFade {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 480px) {
+            .nudge-container {
+                padding: 32px 24px;
+                border-radius: 0;
+                box-shadow: none;
+                border: none;
+                height: 100vh;
+                display: flex;
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="nudge-container">
+        <div class="progress-bar">
+            <div id="progress-fill" class="progress-fill" style="width: 14%"></div>
+        </div>
+
+        <div id="content" class="content-area fade-in">
+            <!-- Content injected here -->
+        </div>
+
+        <div class="navigation" id="nav-area">
+            <button id="action-btn" class="primary-btn">Next</button>
+        </div>
+    </div>
+
+    <script>
+        const state = {
+            step: 1,
+            statementIndex: 0,
+            responses: [],
+            totalSteps: 8
+        };
+
+        const statements = [
+            "I paused my planned instruction to ask a specific question to gauge student understanding.",
+            "I noticed which students were engaged and which seemed unsure during my initial explanation.",
+            "I made a decision in the moment to adjust my next step based on what I saw or heard from students.",
+            "I provided a brief opportunity for students to signal their confusion or confidence before proceeding."
+        ];
+
+        const contentEl = document.getElementById('content');
+        const actionBtn = document.getElementById('action-btn');
+        const progressFill = document.getElementById('progress-fill');
+
+        function updateProgress() {
+            const percentage = (state.step / state.totalSteps) * 100;
+            progressFill.style.width = `${percentage}%`;
+        }
+
+        function render() {
+            contentEl.classList.remove('fade-in');
+            void contentEl.offsetWidth;
+            contentEl.classList.add('fade-in');
+            updateProgress();
+
+            switch(state.step) {
+                case 1:
+                    contentEl.innerHTML = `
+                        <h2>The bell rings and students are settling in. You've prepared a challenging new concept. You look around and see a few students already looking confused during your introduction, while others are nodding along. You have a detailed lesson plan to follow, but you notice the need to check in before moving on.</h2>
+                    `;
+                    actionBtn.textContent = "Next";
+                    break;
+
+                case 2:
+                    contentEl.innerHTML = `
+                        <p>Think about what you actually did in a similar moment during a recent lesson or interaction. Take a moment to picture that situation clearly.</p>
+                        <p>Recall a specific time this week when you introduced something new and sensed varied levels of understanding right from the start. What actually happened in that moment?</p>
+                    `;
+                    break;
+
+                case 3:
+                    const currentStatement = statements[state.statementIndex];
+                    contentEl.innerHTML = `
+                        <p style="margin-bottom: 8px; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em;">Observation ${state.statementIndex + 1} of 4</p>
+                        <h2>${currentStatement}</h2>
+                        <div class="options-grid">
+                            <button class="option-button" onclick="handleResponse('clearly')">Happened clearly</button>
+                            <button class="option-button" onclick="handleResponse('partially')">Happened partially</button>
+                            <button class="option-button" onclick="handleResponse('not')">Did not happen</button>
+                        </div>
+                    `;
+                    actionBtn.classList.add('hidden');
+                    break;
+
+                case 4:
+                    const summary = getPatternSummary();
+                    contentEl.innerHTML = `
+                        <p>The visible pattern from that specific moment:</p>
+                        <div class="pattern-visualizer">
+                            ${state.responses.map(r => `<div class="bar bar-${r}"></div>`).join('')}
+                        </div>
+                        <h2 style="text-align: center; margin-top: 12px;">${summary}</h2>
+                    `;
+                    actionBtn.classList.remove('hidden');
+                    actionBtn.textContent = "Continue";
+                    break;
+
+                case 5:
+                    contentEl.innerHTML = `
+                        <p>This pattern often reflects a moment where awareness of the classroom was active, and the balance between following a plan and responding to immediate signals was in play.</p>
+                        <p>Such patterns typically show that noticing student cues was happening, with varying levels of responsive adjustment in the moment.</p>
+                    `;
+                    break;
+
+                case 6:
+                    contentEl.innerHTML = `
+                        <p>When teachers notice and adjust in these moments, it typically allows students to feel more seen and can prevent early confusion from growing.</p>
+                        <p>This often leads to increased student engagement and more effective differentiation of instruction in real-time.</p>
+                    `;
+                    actionBtn.textContent = "Reflect";
+                    break;
+
+                case 7:
+                    contentEl.innerHTML = `
+                        <h2>Which part of that moment felt least visible to you?</h2>
+                        <div class="options-grid">
+                            <button class="option-button" onclick="finish()">Noticing the specific cues from students</button>
+                            <button class="option-button" onclick="finish()">Deciding to pause or adjust the plan</button>
+                            <button class="option-button" onclick="finish()">Knowing what question or action to take next</button>
+                            <button class="option-button" onclick="finish()">Not sure</button>
+                        </div>
+                    `;
+                    actionBtn.classList.add('hidden');
+                    break;
+                
+                case 8:
+                    contentEl.innerHTML = `
+                        <p>Thank you for your reflection. This interaction is now complete.</p>
+                    `;
+                    document.getElementById('nav-area').classList.add('hidden');
+                    break;
+            }
+        }
+
+        function handleResponse(val) {
+            state.responses.push(val);
+            if (state.statementIndex < statements.length - 1) {
+                state.statementIndex++;
+                render();
+            } else {
+                state.step = 4;
+                render();
+            }
+        }
+
+        function getPatternSummary() {
+            const counts = state.responses.reduce((acc, curr) => {
+                acc[curr] = (acc[curr] || 0) + 1;
+                return acc;
+            }, {});
+            
+            if ((counts.clearly || 0) >= 3) return "Most actions were clearly present.";
+            if ((counts.not || 0) >= 2) return "Several actions were not present in that moment.";
+            if ((counts.partially || 0) >= 2) return "Most actions were partially present.";
+            return "Several actions were clearly present, with some appearing inconsistently.";
+        }
+
+        function finish() {
+            state.step = 8;
+            render();
+        }
+
+        actionBtn.addEventListener('click', () => {
+            state.step++;
+            render();
+        });
+
+        render();
+    </script>
+</body>
+</html>
